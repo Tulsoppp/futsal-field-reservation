@@ -1,0 +1,932 @@
+DOKUMEN SPESIFIKASI KEBUTUHAN PERANGKAT LUNAK
+"Sistem Reservasi Lapangan Jaya Futsal Gili Berbasis Website"
+
+untuk: Tugas Mata Kuliah IF2225-Rekayasa Perangkat Lunak
+
+Dipersiapkan oleh:
+
+Laila Maghfiroh Bunga Adenis Dea Fanny Ahmad Maulana Ishaq Surya Maulana Akhmad Syahrul Rahman Dana Muhamad Jayro Fadil M.
+
+(240411100006) (240411100150) (240411100157) (240411100160) (240411100220) (240411100175)
+
+Prodi Teknik Informatika ­ Universitas Trunodjoyo Madura 2026
+
+Prodi S1- Teknik Informatika Universitas
+Trunodjoyo Madura
+
+Nomer Dokumen
+
+SKPL-RLFG
+
+Revisi
+
+-
+
+Halaman 43
+6 April 2026
+
+Revisi
+A
+
+DAFTAR PERUBAHAN
+Deskripsi
+
+B
+
+C
+
+D
+
+E
+
+F
+
+G
+
+INDEX TGL
+
+-
+
+A
+
+B
+
+C
+
+D
+
+E
+
+F
+
+G
+
+Ditulis
+
+Oleh
+
+Diperiksa
+
+Oleh
+
+Disetujui
+
+Oleh
+
+Prodi Teknik Informatika UTM SKPL-RLFG Halaman 2 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+Daftar Halaman Perubahan
+
+Halaman
+
+Revisi
+
+Halaman
+
+Revisi
+
+Prodi Teknik Informatika UTM SKPL-RLFG Halaman 3 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+DAFTAR ISI
+DAFTAR ISI ...................................................................................................... 4 DAFTAR GAMBAR.......................................................................................... 6 DAFTAR TABEL .............................................................................................. 7 1 Pendahuluan................................................................................................. 8
+1.1 Tujuan Penulisan Dokumen .................................................................. 8 1.2 Lingkup Masalah................................................................................... 8 1.3 Definisi dan Istilah ................................................................................ 8 1.4 Aturan Penamaan dan Penomoran ........................................................ 9 1.5 Referensi ............................................................................................... 9 1.6 Ikhtisar Dokumen................................................................................ 10 2 Deskripsi Umum Perangkat Lunak ............................................................ 11 2.1 Deskripsi Umum Sistem ..................................................................... 11 2.2 Fungsi Produk ..................................................................................... 11 2.3 Karakteristik Pengguna ....................................................................... 11 2.4 Batasan ................................................................................................ 12 2.5 Lingkungan Operasi ............................................................................ 12 3 Deskripsi Umum Kebutuhan ..................................................................... 13 3.1 Kebutuhan antarmuka eksternal.......................................................... 13
+3.1.1 Antarmuka pengguna.................................................................... 13 3.1.2 Antarmuka perangkat keras .......................................................... 14 3.1.3 Antarmuka perangkat lunak.......................................................... 14 3.1.4 Antarmuka komunikasi ................................................................ 15 3.2 Deskripsi Fungsional........................................................................... 16 3.2.1 Use Case Diagram ........................................................................ 16 3.2.2 Diagram Aktivitas ........................................................................ 16
+3.2.2.1 Diagram Aktivitas: Registrasi.................................................. 16 3.2.2.2 Diagram Aktivitas: Login ........................................................ 17 3.2.2.3 Diagram Aktivitas: Reservasi Lapangan ................................. 18 3.2.2.4 Diagram Aktivitas: Daftar Membership .................................. 18 3.2.2.5 Diagram Aktivitas: Mengelola Lapangan................................ 19 3.2.2.6 Diagram Aktivitas: Kelola Reservasi ...................................... 19 3.2.2.7 Diagram Aktivitas: Kelola Laporan......................................... 20 3.2.2.8 Diagram Aktivitas: Mengelola Data Membership dan Daftar
+Pelanggan................................................................................. 20 3.2.2.9 Diagram Aktivitas: Logout ...................................................... 21 3.2.3 Diagram Sekuens.......................................................................... 21 3.2.3.1 Diagram Sekuens: Pelanggan .................................................. 21 3.2.3.2 Diagram Sekuens: Admin........................................................ 23 3.3 Deskripsi Kelas-kelas .......................................................................... 25 3.3.1 Deskripsi Domain Persoalan......................................................... 25 3.3.2 Deskripsi Kelas Pengendali .......................................................... 26 3.3.3 Deskripsi Kelas Entity (Persisten) ................................................ 27 3.3.4 Deskripsi Kelas Boundary ............................................................ 28 3.4 Deskripsi Perilaku Sistem ................................................................... 29 3.5 Kebutuhan Non Fungsional................................................................. 29 3.6 Batasan Perancangan........................................................................... 31
+Prodi Teknik Informatika UTM SKPL-RLFG Halaman 4 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+3.7 Ringkasan Kebutuhan ......................................................................... 31 3.7.1 Ringkasan Kebutuhan Fungsional ................................................ 31 3.7.2 Ringkasan Kebutuhan Non Fungsional ........................................ 32
+4 Tampilan Antar Muka................................................................................ 33 4.1 Tampilan Antar Muka Pengguna ........................................................ 33 4.1.1 Tampilan Halaman Register ......................................................... 33 4.1.2 Tampilan Halaman Login............................................................. 33 4.1.3 Halaman Lading Page .................................................................. 34 4.1.4 Tampilan Halaman Reservasi....................................................... 37 4.2 Tampilan Antar Muka Admin............................................................. 38 4.2.1 Tampilan Halaman Login (Admin) .............................................. 38 4.2.2 Tampilan Halaman Dashboard Admin......................................... 39 4.2.3 Tampilan Halaman Jadwal Lapangan .......................................... 39 4.2.4 Tampilan Halaman Tambah Jadwal Lapangan ............................ 40 4.2.5 Tampilan Halaman Kelola Reservasi Lapangan .......................... 41 4.2.6 Tampilan Halaman Laporan Penyewaan & Keuangan ................ 42 4.2.7 Tampilan Halaman Kelola Daftar Membership ........................... 42 4.2.8 Tampilan Halaman Form Penambahan & Edit Membership ....... 43 4.2.9 Tampilan Halaman Form Kelola Daftar Pelanggan ..................... 44 4.2.10 Tampilan Halaman Form Penambahan & Edit Pelangan............. 44
+Prodi Teknik Informatika UTM SKPL-RLFG Halaman 5 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+DAFTAR GAMBAR
+Gambar 1 Use Case Diagram ................................................................................ 16 Gambar 2 Aktivitas Diagram: Registrasi .............................................................. 17 Gambar 3 Aktivitas Diagram: Login..................................................................... 17 Gambar 4 Diagram Aktivitas: Reservasi Lapangan.............................................. 18 Gambar 5 Diagram Akttivitas: Daftar Membership ............................................. 18 Gambar 6 Diagram Akivitas: Mengelola Lapangan ............................................. 19 Gambar 7 Diagram Aktivitas: Kelola Reservasi ................................................... 19 Gambar 8 Diagram Aktivitas: Laporan Penyewaan dan Keuangan...................... 20 Gambar 9 Diagram Aktivitas: Mengelola Daftar Pelanggan ................................ 20 Gambar 10 Diagram Aktivitas: Logout................................................................. 21 Gambar 11 Diagram Sekuens Pelanggan .............................................................. 22 Gambar 12 Diagram Sekuens: Admin .................................................................. 24 Gambar 13 Tampilan Halaman Register............................................................... 33 Gambar 14 Tampilan Halaman Login.................................................................. 34 Gambar 15 Halaman Landing Page ...................................................................... 35 Gambar 16 Tampilan Halaman Reservasi............................................................. 37 Gambar 17 Tampilan Halaman Login................................................................... 38 Gambar 18 Tampilan Halamna Dashboard Admin............................................... 39 Gambar 19 Tampilan Halaman Jadwal Lapangan ................................................ 40 Gambar 20 Tampilan Halaman Tambah Jadwal Lapangan .................................. 40 Gambar 21 Tampilan Halaman Kelola Reservasi Lapangan ................................ 41 Gambar 22 Tampilan Halaman Laporan Penyewaan & Keuangan ...................... 42 Gambar 23 Tampilan Halaman Kelola Daftar Membership ................................. 42 Gambar 24 Tampilan Halaman Form Penambahan & Edit Membership ............. 43 Gambar 25 Tampilan Halaman Form Kelola Daftar Pelanggan ........................... 44 Gambar 26 Tampilan Halaman Form Penambahan & Edit Pelangan................... 44
+Prodi Teknik Informatika UTM SKPL-RLFG Halaman 6 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+DAFTAR TABEL
+Tabel 1 Aturan Penamaan dan Penomoran ............................................................. 9 Tabel 2 Karakteristik Pengguna ............................................................................ 11 Tabel 3 Deskripsi Kelas Domain Persoalan.......................................................... 25 Tabel 4 Deskripsi Kelas Pengendali ..................................................................... 26 Tabel 5 Deskripsi Kelas Entity ............................................................................. 27 Tabel 6 Deskripsi Kelas Boundary ....................................................................... 28 Tabel 7 Deskripsi Kebutuhan Non Fungsional ..................................................... 29 Tabel 8 Ringkasan Kebutuhan Fungsional ........................................................... 31 Tabel 9 Ringkasan Kebutuhan Non Fungsional.................................................... 32
+Prodi Teknik Informatika UTM SKPL-RLFG Halaman 7 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+1 Pendahuluan
+1.1 Tujuan Penulisan Dokumen
+Tujuan dari penyusunan dokumen Spesifikasi Kebutuhan Perangkat Lunak (SKPL) ini adalah untuk mendefinisikan kebutuhan fungsional dan non-fungsional dari Sistem Reservasi Lapangan Jaya Futsal Gili Berbasis Website secara jelas, terstruktur, dan terukur.
+Dokumen ini digunakan sebagai acuan bagi pengembang dalam proses perancangan dan implementasi sistem, serta sebagai dasar dalam proses pengujian dan evaluasi agar sistem yang dibangun sesuai dengan kebutuhan pengguna.
+1.2 Lingkup Masalah
+Sistem Reservasi Lapangan Jaya Futsal Gili Berbasis Website merupakan aplikasi yang dirancang untuk mempermudah proses pemesanan lapangan futsal secara online. Sistem ini memungkinkan pengguna untuk melihat informasi lapangan, mengecek ketersediaan jadwal, serta melakukan reservasi lapangan melalui website tanpa harus datang langsung ke tempat penyewaan lapangan.
+Ruang lingkup sistem ini mencakup pengelolaan data pengguna, data lapangan, jadwal penggunaan lapangan, serta proses reservasi yang dilakukan oleh pengguna. Pengguna dapat melakukan registrasi akun, login ke dalam sistem, melihat daftar lapangan yang tersedia, mengecek jadwal lapangan, serta melakukan pemesanan lapangan sesuai dengan waktu yang diinginkan.
+Selain itu, sistem juga menyediakan fitur bagi admin atau pengelola untuk mengelola data lapangan, mengatur jadwal penggunaan lapangan, memantau data reservasi, serta melihat laporan pemesanan yang terjadi pada sistem. Dengan adanya sistem ini diharapkan proses pengelolaan reservasi lapangan menjadi lebih terstruktur, efisien, dan meminimalisir terjadinya bentrok jadwal pemesanan.
+Sistem ini dikembangkan dalam bentuk aplikasi berbasis web yang dapat diakses melalui browser dengan koneksi internet. Sistem ini tidak terintegrasi dengan sistem pembayaran otomatis, melainkan hanya mendukung proses pembayaran secara manual, baik melalui pembayaran langsung (cash) maupun transfer/QRIS, dengan mekanisme unggah bukti pembayaran yang kemudian diverifikasi oleh admin.
+1.3 Definisi dan Istilah
+Berikut adalah daftar definisi dan istilah penting yang digunakan dalam dokumen SKPL ini: Prodi Teknik Informatika UTM SKPL-RLFG Halaman 8 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+o SKPL
+o Reservasi o Admin o Pelanggan o Membership
+
+: Spesifikasi Kebutuhan Perangkat Lunak, yaitu dokumen yang berisi hasil analisis kebutuhan sistem secara lengkap dan terstruktur.
+: Proses pemesanan suatu layanan atau tempat untuk memastikan ketersediaan pada waktu yang diinginkan.
+: Pengguna yang memiliki hak akses penuh untuk mengelola data dan operasional sistem.
+: Pengguna yang menggunakan sistem untuk melakukan reservasi dan mengakses layanan yang tersedia.
+: Status keanggotaan pelanggan yang memberikan manfaat tertentu dalam sistem.
+
+1.4 Aturan Penamaan dan Penomoran
+
+Penulisan dokumen SKPL ini menggunakan berbagai macam aturan penamaan dan penomoran yang berbeda-beda untuk beberapa bagian tertentu. Aturan penamaan dan penomoran yang digunakan berdasarkan hal/bagian tersebut adalah seperti yang tercantum pada Tabel 1 berikut ini.
+
+Tabel 1 Aturan Penamaan dan Penomoran
+
+Hal/Bagian Bab
+Sub Bab
+Sub Sub Bab
+Tabel
+
+Aturan Penomoran/Penamaan Menggunakan angka utama (1, 2, 3, dan seterusnya) Menggunakan format angka bertingkat (1.1, 1.2, 1.3, dan seterusnya) Menggunakan format angka bertingkat lebih lanjut (1.1.1, 1.1.2, dan seterusnya) Menggunakan format penomoran Tabel X (Tabel 1, Tabel 2, dan seterusnya)
+
+1.5 Referensi
+Beberapa textbook, panduan, atau dokumentasi lain yang digunakan sebagai acuan dalam pengembangan perangkat lunak ini adalah sebagai berikut. 1. IEEE Std 830-1998: IEEE Recommended Practice for Software
+Requirements Specifications. 2. Pressman, Roger S. (2019): Software Engineering: A Practitioner's Approach
+(9th Edition). McGraw-Hill Education. 3. Sommerville, Ian (2015): Software Engineering (10th Edition). Pearson. 4. Krug, Steve (2014): Don't Make Me Think, Revisited: A Common Sense
+Approach to Web Usability. New Riders.
+
+Prodi Teknik Informatika UTM SKPL-RLFG Halaman 9 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+1.6 Ikhtisar Dokumen Dokumen Spesifikasi Kebutuhan Perangkat Lunak (SKPL) ini disusun untuk memberikan gambaran mengenai kebutuhan sistem yang akan dikembangkan, yaitu Sistem Reservasi Lapangan Jaya Futsal Gili Berbasis Website. Dokumen ini disusun dalam beberapa bagian yang saling berkaitan untuk memudahkan pemahaman terhadap sistem. Bab I merupakan pendahuluan yang berisi tujuan penulisan dokumen, lingkup masalah yang dibahas dalam sistem, definisi dan istilah yang digunakan dalam dokumen, aturan penamaan dan penomoran yang diterapkan, referensi yang digunakan sebagai dasar penyusunan dokumen, serta ikhtisar dokumen. Bab II menjelaskan gambaran umum sistem yang meliputi deskripsi sistem, fungsi utama sistem reservasi lapangan jaya fultsal gili, karakteristik pengguna yang akan menggunakan sistem, batasan-batasan sistem, serta asumsi dan ketergantungan yang berkaitan dengan sistem. Bab III menjelaskan kebutuhan sistem secara lebih rinci yang mencakup kebutuhan antarmuka eksternal, kebutuhan fungsional, pemodelan sistem (use case, activity diagram, dan sequence diagram), deskripsi kelas, perilaku sistem, kebutuhan nonfungsional, batasan perancangan, serta ringkasan kebutuhan sistem. Bab IV menjelaskan tampilan antarmuka sistem yang dirancang untuk mendukung interaksi antara pengguna dengan sistem. Selain itu, dijelaskan pula komponen utama pada setiap halaman beserta fungsi dan perilaku sistem dalam merespons input pengguna. Penjelasan ini bertujuan untuk memberikan gambaran visual dan alur interaksi sistem secara menyeluruh sehingga memudahkan proses implementasi dan pengujian
+Prodi Teknik Informatika UTM SKPL-RLFG Halaman 10 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+2 Deskripsi Umum Perangkat Lunak
+2.1 Deskripsi Umum Sistem
+
+Sistem Reservasi Lapangan Jaya Futsal Gili Berbasis Website merupakan sebuah aplikasi yang dirancang untuk mempermudah proses pemesanan lapangan futsal secara online. Sistem ini memungkinkan pengguna untuk melakukan reservasi tanpa harus datang langsung ke lokasi, sehingga proses menjadi lebih praktis dan efisien.
+
+Melalui sistem ini, pengguna dapat melihat informasi lapangan, mengecek ketersediaan jadwal, serta melakukan pemesanan sesuai dengan waktu yang diinginkan. Selain itu, sistem juga menyediakan fitur pengelolaan data bagi admin untuk mengelola data lapangan, serta memantau aktivitas reservasi.
+
+2.2 Fungsi Produk
+
+Fungsi utama dari sistem reservasi lapangan jaya futsal gili ini adalah sebagai berikut: 1. Registrasi dan Login Pengguna
+Pengguna dapat membuat akun dan masuk ke dalam sistem. 2. Melihat Informasi Lapangan
+Menampilkan daftar lapangan beserta harga dan detailnya. 3. Melihat Jadwal Ketersediaan
+Pengguna dapat mengecek jadwal lapangan yang tersedia. 4. Melakukan Reservasi
+Pengguna dapat memesan lapangan sesuai waktu yang diinginkan. 5. Melakukan Pembayaran
+Sistem menyediakan fitur untuk mengunggah bukti pembayaran. 6. Pengelolaan Data oleh Admin
+Admin dapat: a. Mengelola data lapangan b. Mengatur jadwal c. Memvalidasi pembayaran d. Melihat laporan reservasi
+
+2.3 Karakteristik Pengguna
+
+Karakteristik pengguna dijabarkan dalam tabel berikut ini.
+
+Tabel 2 Karakteristik Pengguna
+
+Kategori Pengguna
+
+Tugas
+
+Hak Akses ke Kemampuan yang harus
+
+aplikasi
+
+dimiliki
+
+Prodi Teknik Informatika UTM SKPL-RLFG Halaman 11 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+Admin Mengelola sistem Akses penuh ke Mampu mengoperasikan
+
+dan data reservasi sistem
+
+sistem web
+
+Pelanggan Melakukan reservasi Akses terbatas Mampu menggunakan
+
+lapangan
+
+(booking & lihat perangkat seperti
+
+data)
+
+smartphone atau
+
+laptop/komputer serta
+
+mengoperasikan browser
+
+(peramban web).
+
+2.4 Batasan
+Batasan dalam sistem ini adalah sebagai berikut: 1. Sistem hanya berbasis website dan membutuhkan koneksi internet. 2. Sistem tidak terintegrasi dengan pembayaran otomatis (bank/e-wallet), hanya
+berupa upload bukti. 3. Jadwal reservasi hanya dapat dilakukan sesuai jam operasional.
+2.5 Lingkungan Operasi
+Lingkungan operasi sistem ini meliputi: 1. Perangkat Keras (Hardware)
+a. Smartphone b. Laptop atau Komputer 2. Perangkat Lunak (Software) a. Sistem Operasi: Android, iOS, Windows b. Web Browser: Google Chrome, Mozilla Firefox, atau Safari 3. Jaringan a. Koneksi internet 4. Server a. Web server untuk menjalankan aplikasi b. Database server untuk penyimpanan data
+
+Prodi Teknik Informatika UTM SKPL-RLFG Halaman 12 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+3 Deskripsi Umum Kebutuhan
+3.1 Kebutuhan antarmuka eksternal
+Bagian ini merinci spesifikasi kebutuhan antarmuka eksternal yang diperlukan oleh Sistem Reservasi Lapangan Jaya Futsal Gili untuk memastikan interaksi yang selaras antara perangkat lunak dengan berbagai elemen di luar sistem. Lingkup kebutuhan ini mencakup rancangan antarmuka pengguna yang ergonomis bagi aktor Admin dan Pelanggan, spesifikasi perangkat keras pada sisi klien maupun server, serta dukungan perangkat lunak pendukung seperti basis data dan peramban web. Selain itu, dipaparkan pula protokol komunikasi jaringan internet yang dilengkapi dengan sistem keamanan SSL untuk menjamin integritas data transaksi. Penjelasan detail pada subbab ini berfungsi sebagai landasan teknis agar sistem dapat beroperasi secara optimal, aman, dan dapat diakses secara real-time oleh pengguna melalui berbagai platform perangkat.
+3.1.1 Antarmuka pengguna
+Antarmuka pengguna Sistem Reservasi Lapangan Jaya Futsal Gili dirancang berbasis web yang dapat diakses melalui berbagai peramban (web browser) modern. Desain antarmuka mengutamakan prinsip ergonomis, estetika yang konsisten, dan kemudahan pengoperasian agar dapat digunakan oleh orang awam tanpa memerlukan pelatihan khusus. Karakteristik utama dari antarmuka sistem ini meliputi: · Responsivitas Desain: Antarmuka dibangun agar bersifat responsif, sehingga
+tampilan layar akan menyesuaikan secara otomatis saat diakses melalui perangkat komputer (PC), tablet, maupun smartphone. · Pemisahan Hak Akses: Sistem menyediakan antarmuka yang berbeda berdasarkan peran pengguna (aktor). Admin memiliki akses ke halaman dasbor pengelolaan untuk memantau jadwal, memvalidasi pembayaran QRIS, dan mengelola laporan keuangan. Sementara Pelanggan memiliki akses ke antarmuka katalog lapangan, pemilihan jadwal, dan formulir reservasi. · Elemen Visual dan Masukan:
+o Pengecekan Jadwal: Menampilkan slot waktu operasional (07.00 - 23.00 WIB) dengan kode warna untuk membedakan jam yang tersedia dan yang sudah terpesan.
+o Formulir Reservasi: Menyediakan kolom input yang sederhana untuk mengisi nama pemesan, tanggal, dan pilihan jam sewa.
+o Manajemen Pembayaran: Antarmuka khusus untuk mengunggah bukti transaksi digital (QRIS/Transfer) dan menampilkan instruksi pembayaran Uang Muka (DP) bagi kategori turnamen.
+· Mekanisme Umpan Balik: Sistem akan memberikan pesan konfirmasi atau pesan galat yang informatif, misalnya jika pengguna salah memasukkan kata
+Prodi Teknik Informatika UTM SKPL-RLFG Halaman 13 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+sandi saat login atau mencoba memesan slot jadwal yang sudah terisi oleh pelanggan lain.
+3.1.2 Antarmuka perangkat keras
+Antarmuka Perangkat keras ini merinci spesifikasi perangkat keras yang diperlukan agar sistem reservasi Lapangan Jaya Futsal Gili dapat beroperasi secara optimal dan dapat berinteraksi dengan pengguna melalui jaringan internet. Berikut adalah rincian antarmuka perangkat keras yang digunakan: · Perangkat Keras Pengguna (Admin dan Pelanggan): Sistem dapat diakses
+melalui berbagai perangkat komputasi personal seperti Smartphone, Tablet, Laptop, atau PC yang memiliki spesifikasi standar untuk menjalankan peramban web modern. Perangkat tersebut harus memiliki layar monitor dengan resolusi yang memadai untuk menampilkan antarmuka sistem secara responsif dan ergonomis. · Infrastruktur Server (Penyedia Layanan): Memerlukan perangkat keras berupa Web Server untuk mengeksekusi logika aplikasi berbasis PHP dan Database Server yang berfungsi sebagai media penyimpanan data relasional (seperti data pelanggan, jadwal, dan transaksi) secara persisten pada MySQL. · Layanan Web Hosting: Untuk menjamin ketersediaan sistem selama 24 jam sehari, sistem ditempatkan pada layanan Web Hosting berbasis cloud. Penggunaan infrastruktur ini bertujuan untuk meminimalkan waktu pemrosesan (latency) dan menjamin skalabilitas saat terjadi lonjakan akses pengunjung. · Peranti Masukan dan Keluaran: Pengguna berinteraksi dengan sistem menggunakan alat masukan standar seperti keyboard, mouse, atau layar sentuh (touchscreen). Selain itu, kamera pada perangkat seluler diperlukan sebagai peranti masukan untuk mengambil gambar atau foto bukti pembayaran digital (QRIS/Transfer) yang kemudian akan diunggah ke dalam sistem
+3.1.3 Antarmuka perangkat lunak
+Antarmuka perangkat lunak merinci komponen perangkat lunak yang berinteraksi dengan sistem, baik dari sisi pengembangan, penyimpanan data, maupun sisi pengguna akhir: · Sistem Operasi: Sistem ini bersifat platform-independent dan dapat berjalan
+pada berbagai sistem operasi selama memiliki peramban web (web browser). Di sisi pengguna seluler, sistem dioptimalkan untuk berjalan pada Android dan iOS. · Bahasa Pemrograman dan Framework: Aplikasi ini dibangun menggunakan bahasa pemrograman PHP dengan menggunakan Framework Laravel 12 untuk memastikan struktur kode yang aman dan efisien.
+Prodi Teknik Informatika UTM SKPL-RLFG Halaman 14 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+· Teknologi Web Statis: Antarmuka dibangun menggunakan kombinasi HTML, CSS, untuk menciptakan tampilan yang dinamis dan responsif.
+· Sistem Manajemen Basis Data (DBMS): Untuk pengelolaan data relasional seperti data pelanggan, jadwal, dan transaksi, sistem menggunakan MySQL.
+· Peramban Web (Web Browser): Pengguna dapat mengakses antarmuka sistem melalui perangkat lunak penjelajah web populer seperti Google Chrome, Mozilla Firefox, atau Safari.
+· Server Lokal (Pengembangan): Selama masa perancangan dan pembangunan, sistem menggunakan XAMPP sebagai lingkungan web server lokal.
+· Keamanan Data: Perangkat lunak ini mengintegrasikan fungsi keamanan sistem seperti password_hash untuk melakukan enkripsi pada kata sandi pengguna sebelum disimpan ke database.
+3.1.4 Antarmuka komunikasi
+Bagian ini merinci protokol komunikasi dan standar keamanan jaringan yang digunakan agar sistem dapat berinteraksi secara aman dan efisien melalui internet: · Koneksi Internet dan Ketersediaan: Sistem sangat bergantung pada
+ketersediaan jaringan internet yang stabil agar dapat diakses oleh Pelanggan maupun Admin selama 24 jam sehari, meskipun operasional lapangan dibatasi. · Protokol Keamanan (SSL/HTTPS): Untuk menjamin kerahasiaan data pribadi pengguna dan integritas transaksi keuangan (seperti saat mengunggah bukti pembayaran QRIS), sistem didukung oleh protokol SSL (Secure Sockets Layer) atau HTTPS yang berfungsi mengenkripsi data selama proses transit di jaringan internet. · Protokol Jaringan: Komunikasi antara peramban web klien dan server aplikasi menggunakan standar protokol TCP/IP dan HTTP/HTTPS untuk mendukung pertukaran data secara real-time. · Sinkronisasi Data: Sistem memastikan terjadinya sinkronisasi data secara instan pada basis data MySQL, sehingga setiap kali ada booking baru, informasi ketersediaan slot waktu akan langsung diperbarui di semua perangkat pengakses tanpa adanya delay yang mengganggu integritas jadwal. · Notifikasi Elektronik: Sistem mendukung komunikasi asinkron melalui antarmuka web untuk memberikan status konfirmasi pesanan atau pembatalan jadwal secara langsung kepada pengguna melalui dasbor aplikasi
+Prodi Teknik Informatika UTM SKPL-RLFG Halaman 15 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+3.2 Deskripsi Fungsional Sistem yang dikembangkan adalah Sistem Reservasi Lapangan Jaya Futsal Gili, yang bertujuan untuk mempermudah proses pemesanan lapangan secara digital, menggantikan proses manual yang sebelumnya dilakukan. Dengan adanya sistem ini, pengguna dapat melakukan pemesanan lapangan, melihat jadwal ketersediaan, serta melakukan konfirmasi pembayaran secara lebih efisien. 3.2.1 Use Case Diagram
+Gambar 1 Use Case Diagram
+3.2.2 Diagram Aktivitas Activity diagram merupakan diagram yang digunakan untuk menggambarkan alur kerja atau proses bisnis dalam suatu sistem secara berurutan. Diagram ini menunjukkan aktivitas yang dilakukan oleh aktor dan sistem, termasuk percabangan keputusan, proses paralel, serta aliran kontrol dari awal hingga akhir proses. Pada sistem reservasi Lapangan Jaya Futsal Gili, activity diagram digunakan untuk memodelkan alur proses pemesanan lapangan yang dilakukan oleh pelanggan serta interaksi dengan sistem dan admin dalam mengelola data reservasi. 3.2.2.1 Diagram Aktivitas: Registrasi Diagram aktivitas ini menunjukkan alur aktor pelanggan dalam melakukan registrasi dan login ke dalam sistem. Diagram ini ditunjukkan pada Gambar 2. Prodi Teknik Informatika UTM SKPL-RLFG Halaman 16 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+Gambar 2 Aktivitas Diagram: Registrasi 3.2.2.2 Diagram Aktivitas: Login Diagram aktivitas ini menunjukkan alur proses login yang dilakukan oleh pelanggan dan admin ke dalam sistem. Diagram ini ditunjukkan pada Gambar 3.
+Gambar 3 Aktivitas Diagram: Login Prodi Teknik Informatika UTM SKPL-RLFG Halaman 17 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+3.2.2.3 Diagram Aktivitas: Reservasi Lapangan Diagram aktivitas ini menunjukkan alur aktor pelanggan dalam melakukan pemesanan atau reservasi lapangan pada sistem. Diagram ini ditunjukkan pada Gambar 4.
+Gambar 4 Diagram Aktivitas: Reservasi Lapangan 3.2.2.4 Diagram Aktivitas: Daftar Membership Diagram aktivitas ini menunjukkan alur aktor pelanggan dalam melakukan pendaftaran membership pada sistem. Diagram ini ditunjukkan pada Gambar 5.
+Gambar 5 Diagram Akttivitas: Daftar Membership Prodi Teknik Informatika UTM SKPL-RLFG Halaman 18 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+3.2.2.5 Diagram Aktivitas: Mengelola Lapangan Diagram aktivitas ini menunjukkan alur admin dalam login dan mengelola data lapangan. Diagram ini ditunjukkan pada Gambar 6.
+Gambar 6 Diagram Akivitas: Mengelola Lapangan 3.2.2.6 Diagram Aktivitas: Kelola Reservasi Diagram aktivitas ini menunjukkan alur admin dalam mengecek status reservasi serta alur admin dalam melakukan validasi. Diagram ini ditunjukkan pada Gambar 7.
+Gambar 7 Diagram Aktivitas: Kelola Reservasi Prodi Teknik Informatika UTM SKPL-RLFG Halaman 19 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+3.2.2.7 Diagram Aktivitas: Kelola Laporan Diagram aktivitas ini menunjukkan alur admin dalam melihat dan mengelola laporan pada sistem. Diagram ini ditunjukkan pada Gambar 8.
+Gambar 8 Diagram Aktivitas: Laporan Penyewaan dan Keuangan 3.2.2.8 Diagram Aktivitas: Mengelola Data Membership dan Daftar Pelanggan Diagram aktivitas ini menunjukkan alur admin dalam mengelola data membership dan data pelanggan pada sistem. Diagram ini ditunjukkan pada Gambar 9.
+Gambar 9 Diagram Aktivitas: Mengelola Daftar Pelanggan Prodi Teknik Informatika UTM SKPL-RLFG Halaman 20 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+3.2.2.9 Diagram Aktivitas: Logout Diagram aktivitas ini menunjukkan alur proses logout yang dilakukan oleh pelanggan dan admin. Diagram ini ditunjukkan pada Gambar 10.
+Gambar 10 Diagram Aktivitas: Logout 3.2.3 Diagram Sekuens Sequence diagram memperlihatkan atau menampilkan interaksi ­ interaksi antar objek didalam suatu sistem yang disusun pada sebuah urutan atau rangkaian waktu. Diagram ini secara khusus berasosiasi dengan use case diagram. Sequence diagram juga memperlihatkan tahap demi tahap apa yang seharusnya terjadi untuk menghasilkan sesuatu di dalam use case. Sequence diagram pada sistem Reservasi Lapangan Jaya Futsal Gili sebagai berikut. 3.2.3.1 Diagram Sekuens: Pelanggan Diagram ini menggambarkan proses yang dilakukan oleh pelanggan dalam menggunakan sistem, dimulai dari registrasi, login, hingga melakukan reservasi lapangan. Alur dimulai ketika pelanggan melakukan registrasi akun dengan mengisi data yang diperlukan, kemudian sistem melakukan validasi data dan menyimpan informasi Prodi Teknik Informatika UTM SKPL-RLFG Halaman 21 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+pengguna. Setelah berhasil, pelanggan dapat melakukan login dengan memasukkan email dan password. Setelah login berhasil, pelanggan dapat melihat jadwal lapangan yang tersedia, memilih tanggal dan waktu, kemudian mengisi data pemesanan. Sistem akan menampilkan ringkasan pemesanan dan total biaya yang harus dibayar. Pelanggan kemudian melakukan pembayaran dan mengunggah bukti pembayaran, sehingga sistem akan menyimpan data reservasi dan menampilkan status pemesanan.
+Gambar 11 Diagram Sekuens Pelanggan Prodi Teknik Informatika UTM SKPL-RLFG Halaman 22 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+3.2.3.2 Diagram Sekuens: Admin Diagram ini menggambarkan proses yang dilakukan oleh admin dalam mengelola sistem reservasi. Alur dimulai ketika admin melakukan login ke dalam sistem. Setelah berhasil masuk, admin dapat mengakses dashboard untuk mengelola data lapangan, jadwal, serta data pelanggan. Admin juga dapat memvalidasi pembayaran yang telah diunggah oleh pelanggan. Sistem akan menampilkan data pembayaran, kemudian admin melakukan verifikasi dan menentukan status reservasi (diterima atau ditolak). Selain itu, admin juga dapat mengelola laporan keuangan serta data membership pelanggan.
+Prodi Teknik Informatika UTM SKPL-RLFG Halaman 23 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+Gambar 12 Diagram Sekuens: Admin
+Prodi Teknik Informatika UTM SKPL-RLFG Halaman 24 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+3.3 Deskripsi Kelas-kelas
+
+Bagian ini menjelaskan struktur perangkat lunak dalam bentuk kelas-kelas objek yang saling berinteraksi. Pendekatan yang digunakan adalah Boundary Control Entity (BCE) untuk memisahkan antarmuka, logika bisnis, dan penyimpanan data.
+
+3.3.1 Deskripsi Domain Persoalan
+
+Tabel 3 Deskripsi Kelas Domain Persoalan
+
+No. Nama 1 Pelanggan
+2 Admin
+
+Metode daftar(), login(),
+ubahProfil()
+id_admin, username, password
+
+Atribut id, nama,
+email, no_hp, password, status_memb
+er login()
+
+Tugas Menyimpan identitas
+pengguna yang melakukan
+pendaftaran dan pemesanan.
+Menyimpan data kredensial pengelola
+lapangan.
+
+3 Lapangan
+
+id_lapangan,
+
+cekStatus()
+
+Menyimpan
+
+nama_lapangan,
+
+informasi detail
+
+jenis,
+
+mengenai lapangan
+
+harga_per_jam,
+
+olahraga yang
+
+status
+
+tersedia.
+
+4 Jadwal
+
+id_jadwal,
+
+cekKetersedi Mengelola informasi
+
+id_lapangan,
+
+aan()
+
+slot waktu
+
+tanggal, jam_mulai,
+
+penggunaan
+
+jam_selesai
+
+lapangan.
+
+5 Reservasi
+
+id_reservasi, id_pelanggan,
+id_jadwal, total_biaya, status_pesanan
+
+buatPesanan (),batalkanPe
+sanan()
+
+Mencatat transaksi pemesanan yang dilakukan oleh
+pelanggan.
+
+Prodi Teknik Informatika UTM SKPL-RLFG Halaman 25 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+3.3.2 Deskripsi Kelas Pengendali Tabel 4 Deskripsi Kelas Pengendali
+
+No Nama AuthContr oller
+1.
+Reservasi Controller
+2.
+JadwalCon troller
+3.
+ValidasiCo ntroller
+4.
+
+Metode prosesLogin(), prosesRegister(), prosesLogout()
+buatPesanan(), prosesPembayaran(), batalkanPesanan(), tampilRiwayatBooking()
+tampilJadwal(), tambahJadwal(),
+editJadwal(), hapusJadwal()
+validasiPembayaran(), validasiPembatalan(),
+updateStatus()
+
+Atribut session_id, status_login
+-
+-
+-
+
+Tugas Mengendalikan proses otentikasi
+pengguna, pendaftaran akun
+baru oleh pelanggan, dan pemutusan sesi
+masuk. Menangani seluruh logika bisnis terkait pemesanan lapangan oleh pelanggan, mulai dari booking
+hingga pembatalan. Mengendalikan alur untuk menampilkan
+jadwal ke pelanggan serta proses CRUD (Tambah, Edit, Hapus) jadwal lapangan oleh
+admin. validasiPembayar
+an(), validasiPembatala
+n(), updateStatus()
+
+Prodi Teknik Informatika UTM SKPL-RLFG Halaman 26 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+Membersh
+
+daftarMember(),
+
+-
+
+Mengelola alur
+
+ipControll tampilDataMember(),
+
+pendaftaran
+
+er
+
+hapusMember()
+
+membership baru
+
+5.
+
+oleh pelanggan
+
+dan pengelolaan
+
+data pelanggan
+
+prioritas tersebut
+
+oleh admin.
+
+LaporanCo generateLaporanKeuanga periode_aw Memproses
+
+ntroller
+
+n(),
+
+al,
+
+penarikan data
+
+generateLaporanPenyew periode_akh dari database
+
+6.
+
+aan(), filterTanggal()
+
+ir
+
+untuk disajikan
+
+sebagai laporan
+
+rekapitulasi
+
+penyewaan dan
+
+keuangan bagi
+
+admin.
+
+3.3.3 Deskripsi Kelas Entity (Persisten)
+
+Tabel 5 Deskripsi Kelas Entity
+
+No. Nama
+
+Atribut
+
+Metode
+
+Tugas
+
+1. Pelanggan id, nama, email,
+
+create(),
+
+Menyimpan dan
+
+password, no_hp,
+
+update(),
+
+mengelola data
+
+status_member,rol
+
+delete(),
+
+permanen profil
+
+e
+
+findByID()
+
+pelanggan di
+
+database.
+
+2.
+
+Admin
+
+id, username,
+
+verifyLogin(), Menyimpan data
+
+password, role updatePassword( otentikasi dan hak
+
+)
+
+akses pengelola
+
+sistem.
+
+3. Lapangan
+
+id_lapangan,
+
+save(), edit(), Menyimpan data
+
+nama_lapangan,
+
+getAll()
+
+fisik lapangan
+
+jenis,
+
+yang dikelola
+
+harga_per_jam,
+
+oleh Jaya Futsal
+
+foto_lapangan
+
+Gili.
+
+4.
+
+Jadwal
+
+id_jadwal,
+
+updateAvailabilit Menyimpan slot
+
+id_lapangan, tgl,
+
+y(),
+
+waktu
+
+jam_mulai,
+
+getJadwalKoson penggunaan
+
+g()
+
+Prodi Teknik Informatika UTM SKPL-RLFG Halaman 27 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+jam_selesai, status_tersedia
+
+lapangan secara persisten.
+
+5. Reservasi
+
+id_reservasi,
+
+saveBooking(),
+
+Menyimpan
+
+id_pelanggan, updateStatus(),
+
+rekam jejak
+
+id_jadwal,
+
+cancel()
+
+transaksi
+
+total_harga,
+
+pemesanan yang
+
+status_booking
+
+dilakukan oleh
+
+pelanggan.
+
+6. Pembayaran
+
+id_bayar,
+
+savePayment(), Menyimpan data
+
+id_reservasi, getPaymentDetai bukti pembayaran
+
+metode,
+
+l()
+
+dan status
+
+bukti_transfer,
+
+keuangan
+
+tgl_bayar
+
+transaksi.
+
+3.3.4 Deskripsi Kelas Boundary
+
+Tabel 6 Deskripsi Kelas Boundary
+
+No.
+
+Nama
+
+Atribut
+
+Metode
+
+Tugas
+
+1 HalamanUtama banner_info, tampilkanBeranda(), Menampilkan
+
+search_bar, pencarianJadwal() informasi umum
+
+tombol_login
+
+lapangan dan fitur
+
+pencarian jadwal
+
+bagi pengunjung.
+
+2 FormAutentikas input_email, tampilkanForm(), Menyediakan
+
+i
+
+input_password, kirimKredensial() inputan bagi user
+
+btn_submit
+
+untuk melakukan
+
+login atau
+
+pendaftaran akun.
+
+3 HalamanKatalo list_lapangan, tampilkanDaftar(), Menampilkan daftar
+
+g
+
+filter_kategori, pilihLapangan() lapangan futsal
+
+label_harga
+
+yang tersedia
+
+beserta rincian
+
+fasilitasnya.
+
+4 FormPemesanan date_picker, tampilkanForm(), Menyediakan
+
+dropdown_jam, hitungEstimasi(), antarmuka bagi
+
+input_durasi konfirmasiBooking() pelanggan untuk
+
+memilih waktu
+
+sewa dan mengirim
+
+pesanan.
+
+Prodi Teknik Informatika UTM SKPL-RLFG Halaman 28 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+5 HalamanPemba detail_transaksi, tampilkanInstruksi(), Menampilkan
+
+yaran field_upload_bu uploadBukti() rincian tagihan dan
+
+kti, timer_bayar
+
+sarana mengunggah
+
+bukti transfer
+
+pembayaran.
+
+6 DashboardAdmi menu_sidebar, tampilkanStatistik(), Panel utama bagi
+
+n
+
+tabel_status_pesa refreshData(),
+
+admin untuk
+
+nan,
+
+navigasiMenu() memantau semua
+
+grafik_pendapata
+
+aktivitas reservasi
+
+n
+
+dan mengelola
+
+sistem.
+
+3.4 Deskripsi Perilaku Sistem
+
+Bagian ini menjelaskan bagaimana bagaimana sistem akan merespons input dan kondisi tertentu berdasarkan aturan bisnis yang berlaku di Jaya Futsal Gili:
+
+1. Logika Penentuan Biaya Otomatis: Sistem secara otomatis menghitung tarif berdasarkan waktu sewa: Rp 60.000/jam untuk pemakaian pagi hingga pukul 17.00, dan Rp70.000/jam untuk pukul 17.00 hingga 23.00 WIB
+2. Manajemen Membership dan Loyalitas: Pendaftaran member(biaya Rp 150.000) memberikan bonus gratis sewa 1 jam. Sistem akan secara otomatis menghanguskan status member jika pelanggan tidak melakukan aktivitas pesanan selama 3 bulan berturut - turut
+3. Prosedur Pembayaran: Untuk pemesanan reguler, sistem mendukung pembayaran di tempat (Cash) setelah bermain atau mendukung pembayaran melalui QRIS. Namun, untuk kategori Turnamen, sistem mewajibkan pembayaran Uang Muka (DP) melalui unggah bukti QRIS sebelum jadwal dikonfirmasi.
+4. Validasi Slot Waktu: Sistem hanya mengizinkan reservasi pada jam operasional yaitu 07.00 - 23.00 WIB. Jika terjadi kendala operasional seperti cuaca buruk, Admin memiliki otoritas untuk mengubah status jadwal atau melakukan pembatalan.
+
+3.5 Kebutuhan Non Fungsional
+
+SKPL-Id SKPL-N001
+
+Tabel 7 Deskripsi Kebutuhan Non Fungsional
+
+Parameter Availability
+
+Kebutuhan Sistem harus dapat diakses oleh pengguna selama 24 jam sehari melalui jaringan internet, kecuali pada saat pemeliharaan sistem (maintenance). Informasi ketersediaan slot reservasi hanya ditampilkan sesuai jam operasional lapangan, yaitu pukul 07.00 hingga
+
+Prodi Teknik Informatika UTM SKPL-RLFG Halaman 29 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+23.00 WIB.
+
+SKPL-N002 Reliability
+
+Sistem harus mampu menangani concurrency (akses bersamaan) dengan memastikan bahwa satu slot jadwal hanya dapat dipesan oleh satu pengguna pada satu waktu untuk menghindari duplikasi reservasi.
+
+SKPL-N003 Usability SKPL-N004 Security SKPL-N005 Performance
+
+Sistem harus memiliki antarmuka yang mudah dipahami dan digunakan oleh pengguna tanpa memerlukan pelatihan khusus, dengan tampilan yang konsisten dan navigasi yang jelas. Sistem harus melindungi data pengguna dengan menerapkan enkripsi pada kata sandi serta pembatasan hak akses berdasarkan peran pengguna (Admin dan Pelanggan). Sistem harus mampu menampilkan jadwal ketersediaan lapangan dalam waktu maksimal 3 detik setelah permintaan dilakukan pada kondisi jaringan normal.
+
+Prodi Teknik Informatika UTM SKPL-RLFG Halaman 30 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+3.6 Batasan Perancangan
+
+Bagian ini menjelaskan batasan teknis yang harus dipatuhi dalam pengembangan sistem:  Platform: Aplikasi berbasis Web (Web-based Application).  Bahasa Pemrograman: Menggunakan PHP.  Framework: Laravel 12.  Database: Menggunakan MySQL untuk penyimpanan data relasional.  Server Lokal: Menggunakan XAMPP sebagai web server lokal selama masa
+pengembangan.  Keamanan: Sistem wajib menggunakan enkripsi (seperti password_hash) untuk
+melindungi kata sandi pengguna.  Aksesibilitas: Aplikasi harus dapat diakses melalui browser populer seperti
+Google Chrome, Mozilla Firefox, atau Safari.
+
+3.7 Ringkasan Kebutuhan
+
+3.7.1 Ringkasan Kebutuhan Fungsional
+
+Tabel 8 Ringkasan Kebutuhan Fungsional
+
+SKPL-Id SKPL-F001 SKPL-F002 SKPL-F003 SKPL-F004 SKPL-F005 SKPL-F006 SKPL-F007 SKPL-F008 SKPL-F009 SKPL-F010
+
+Keterangan menerima data User Id dan Password dari pengguna dan mem-
+validasinya Sistem mampu memproses pendaftaran akun Pelanggan baru. Sistem mampu menampilkan jadwal ketersediaan lapangan
+secara real-time. Sistem mampu menghitung biaya sewa secara otomatis
+(Pagi/Malam & Diskon Member) Sistem mampu memproses reservasi lapangan (input tanggal,
+jam, dan durasi). Sistem mampu mengunggah bukti pembayaran QRIS/Transfer
+oleh Pelanggan. Sistem mampu memvalidasi pembayaran dan mengubah status
+booking oleh Admin. Sistem mampu mengelola pendaftaran Membership (aktif 3
+bulan). Sistem mampu membatalkan pesanan jika terjadi kendala oleh
+Admin. Sistem mampu menghasilkan laporan keuangan harian dan
+bulanan untuk Admin.
+
+Prodi Teknik Informatika UTM SKPL-RLFG Halaman 31 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+3.7.2 Ringkasan Kebutuhan Non Fungsional
+
+Tabel 9 Ringkasan Kebutuhan Non Fungsional
+
+SKPL-Id SKPL-N001
+SKPL-N002 SKPL-N003 SKPL-N004 SKPL-N005
+
+Keterangan Sistem tersedia 24 jam (kecuali maintenance) dan hanya menampilkan jadwal sesuai jam operasional (07.00­23.00 WIB). Sistem mencegah duplikasi reservasi dengan memastikan satu slot hanya dapat dipesan oleh satu pengguna pada satu waktu. Sistem memiliki antarmuka yang mudah dipahami, konsisten, dan mudah digunakan. Sistem melindungi data pengguna melalui enkripsi kata sandi dan pembatasan hak akses berdasarkan peran. Sistem menampilkan jadwal dalam waktu maksimal 3 detik pada kondisi normal.
+
+Prodi Teknik Informatika UTM SKPL-RLFG Halaman 32 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+4 Tampilan Antar Muka
+Bagian ini menjelaskan rancangan visual dan elemen grafis dari sistem reservasi Lapangan Jaya Futsal Gili untuk memudahkan interaksi pengguna.
+4.1 Tampilan Antar Muka Pengguna Menampilkan detail halaman yang digunakan oleh pelanggan untuk melakukan aktivitas, mulai dari pendaftaran hingga proses reservasi.
+4.1.1 Tampilan Halaman Register
+
+Tampilan Halaman Register
+
+Gambar 13
+
+Halaman ini berfungsi sebagai sarana pendaftaran akun tim baru. Komponen utama meliputi: · Input Data: Nama Tim, No. HP, Email, Password, dan Konfirmasi Password. · Aksi: Tombol "Buat Akun Baru" untuk memproses data. · Navigasi: Tautan "Login sekarang" untuk pengguna terdaftar dan "Kembali ke
+Landing Page" untuk membatalkan pendaftaran.
+
+4.1.2 Tampilan Halaman Login
+
+Prodi Teknik Informatika UTM SKPL-RLFG Halaman 33 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+Tampilan Halaman Login
+
+Gambar 14
+
+Halaman ini berfungsi sebagai pintu masuk bagi pengguna yang telah memiliki akun untuk mengakses dashboard reservasi lapangan. Komponen utama meliputi: · Input Data: Kolom Email dan Password. · Aksi: Tombol "Masuk Akun" untuk memvalidasi kredensial dan masuk ke
+dalam sistem. · Navigasi: Tautan "Daftar di sini" bagi pengguna yang belum memiliki akun,
+dan "Kembali ke Landing Page" untuk kembali ke halaman awal.
+
+4.1.3 Halaman Lading Page
+
+Prodi Teknik Informatika UTM SKPL-RLFG Halaman 34 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+Gambar 15 Halaman Landing Page
+Halaman ini adalah beranda utama yang menyajikan informasi menyeluruh mengenai layanan Jaya Futsal Gili kepada pengunjung sebelum mereka masuk ke dalam sistem. Komponen utama meliputi: · Header/Navigasi: Menu akses cepat (Fitur, Jadwal & Harga, Membership)
+serta tombol Login, Register, dan Reservasi Sekarang.
+Prodi Teknik Informatika UTM SKPL-RLFG Halaman 35 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+· Hero Section: Area penawaran utama yang berisi tagline, keunggulan fasilitas, ringkasan informasi, dan tombol aksi (Call to Action) "Mulai Reservasi".
+· Alur Utama Pengguna: Penjelasan ringkas mengenai tahapan penggunaan sistem, mulai dari registrasi, reservasi, pembayaran, hingga riwayat booking.
+· Harga Sewa Lapangan: Tabel rincian tarif sewa berdasarkan rentang waktu dan hari, dilengkapi dengan indikator status ketersediaan lapangan.
+· Paket Membership: Informasi penawaran keanggotaan eksklusif beserta harga langganan bulanan dan keuntungan yang didapatkan.
+Prodi Teknik Informatika UTM SKPL-RLFG Halaman 36 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+4.1.4 Tampilan Halaman Reservasi Gambar 16 Tampilan Halaman Reservasi
+Halaman ini merupakan pusat aktivitas (dashboard) bagi pengguna yang telah berhasil login. Halaman ini mencakup tiga fitur utama: · Proses Reservasi User: Area formulir untuk melakukan pemesanan lapangan.
+Pengguna dapat mengatur detail jadwal (tanggal, jam, durasi, dan jenis lapangan) dan melengkapi proses pembayaran melalui panel "Ringkasan Pesanan" (termasuk unggah bukti transfer dan konfirmasi pesanan). Prodi Teknik Informatika UTM SKPL-RLFG Halaman 37 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+· Riwayat Booking: Tabel yang menampilkan histori transaksi penyewaan lapangan pengguna. Menampilkan detail tanggal, nama lapangan, durasi, total biaya, beserta status pemesanan (seperti Selesai atau Dibatalkan).
+· Daftar Membership: Formulir pendaftaran untuk menjadi member Jaya Futsal. Pengguna dapat memilih paket langganan, mengisi data penanggung jawab (PIC), dan mengunggah bukti pembayaran untuk diproses oleh admin.
+4.2 Tampilan Antar Muka Admin
+Bagian ini menjelaskan antarmuka yang digunakan oleh pengelola Jaya Futsal Gili untuk memvalidasi dan mengontrol seluruh aktivitas operasional sistem.
+4.2.1 Tampilan Halaman Login (Admin)
+
+17 Tampilan Halaman Login
+
+Gambar
+
+Halaman ini merupakan pusat kendali untuk mengelola data yang masuk dari sisi pengguna secara real-time. Komponen utama meliputi: · Kelola Reservasi Lapangan: Panel untuk memantau pesanan yang masuk.
+Admin dapat memeriksa jadwal yang dipilih pengguna, memverifikasi bukti transfer yang diunggah, dan mengubah status booking menjadi "Berhasil/Dikonfirmasi". · Laporan Riwayat Transaksi: Ringkasan seluruh aktivitas penyewaan lapangan dari semua tim. Fitur ini memudahkan admin dalam memantau pendapatan dan melakukan rekapitulasi data secara berkala. · Validasi & Aktivasi Membership: Area khusus untuk meninjau pendaftaran member baru. Admin bertugas memvalidasi pembayaran iuran membership dan mengaktifkan status akun pengguna menjadi "Member Pro" agar mereka bisa menikmati diskon otomatis.
+
+Prodi Teknik Informatika UTM SKPL-RLFG Halaman 38 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+· Manajemen Jadwal & Harga: Antarmuka untuk mengatur ketersediaan slot jam lapangan serta melakukan pembaruan harga sewa (misal: perubahan tarif antara hari kerja dan akhir pekan).
+4.2.2 Tampilan Halaman Dashboard Admin
+Gambar 18 Tampilan Halamna Dashboard Admin Halaman ini berfungsi sebagai pusat informasi utama bagi pengelola untuk memantau ringkasan operasional Jaya Futsal Gili secara real-time. Komponen utama pada halaman ini meliputi: · Menu Navigasi Utama: Terdapat deretan tombol menu (seperti Kelola Jadwal,
+Kelola Reservasi, Laporan, Data Membership, Daftar Pelanggan) untuk berpindah ke berbagai modul manajemen admin. Terdapat juga pintasan kembali ke "Website User" dan "Logout". · Kartu Ringkasan Data (Statistik): Menampilkan metrik penting operasional aplikasi secara cepat, yang meliputi Total Jadwal, antrean Validasi Pembayaran, antrean Validasi Pembatalan, total Pendapatan Lunas, dan jumlah Membership Aktif. · Aktivitas Reservasi Terbaru: Tabel yang menampilkan sekilas riwayat pesanan yang baru masuk atau diperbarui. Menampilkan detail nama tim, tanggal dan lapangan yang dipesan, serta status pesanan saat ini (Pending, Disetujui, atau Selesai). Terdapat juga tombol "Buka Kelola Reservasi" untuk melompat langsung ke halaman persetujuan.
+4.2.3 Tampilan Halaman Jadwal Lapangan
+Prodi Teknik Informatika UTM SKPL-RLFG Halaman 39 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+Gambar 19 Tampilan Halaman Jadwal Lapangan Halaman ini dikhususkan bagi admin untuk mengatur dan mengontrol daftar ketersediaan slot waktu penyewaan lapangan. Komponen utama pada halaman ini meliputi: · Tabel Data Jadwal Lapangan: Menampilkan rincian slot jadwal secara
+terstruktur, yang mencakup informasi Tanggal, Jam operasional, jenis Lapangan (misal: Vinyl, Rumput Sintetis), Harga sewa, serta Status ketersediaan saat ini (Tersedia atau Penuh). · Tombol "+ Tambah Jadwal": Tombol aksi utama yang digunakan admin untuk memasukkan slot waktu penyewaan baru ke dalam sistem. · Kolom Aksi (Edit & Hapus): Fitur manajemen pada setiap baris data yang memungkinkan admin untuk melakukan perubahan detail informasi jadwal (Edit) atau menghapus jadwal tersebut dari sistem (Hapus). 4.2.4 Tampilan Halaman Tambah Jadwal Lapangan
+Gambar 20 Tampilan Halaman Tambah Jadwal Lapangan Halaman ini menampilkan formulir yang digunakan oleh admin untuk memasukkan data slot penyewaan lapangan baru ke dalam sistem. Komponen utama pada halaman ini meliputi:
+Prodi Teknik Informatika UTM SKPL-RLFG Halaman 40 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+· Formulir Input Data: Terdiri dari kolom-kolom pengisian wajib, yaitu Tanggal, Jam Mulai, Jam Selesai, pilihan jenis Lapangan, nominal Harga/Jam, serta pengaturan Status awal jadwal tersebut (contoh: Tersedia).
+· Tombol Aksi: Tombol utama "Simpan Jadwal" (berwarna oranye) untuk mengeksekusi dan menyimpan data ke database, serta tombol "Batal" untuk mengosongkan form.
+· Navigasi: Terdapat tombol "Kembali ke List" di sudut kanan atas untuk mengarahkan admin kembali ke tabel daftar jadwal tanpa menyimpan perubahan.
+4.2.5 Tampilan Halaman Kelola Reservasi Lapangan
+Gambar 21 Tampilan Halaman Kelola Reservasi Lapangan Halaman ini merupakan pusat kontrol bagi admin untuk memantau, memvalidasi, dan mengelola seluruh proses pesanan lapangan dari pengguna. Komponen utama pada halaman ini meliputi: · Kartu Ringkasan Status: Indikator angka di bagian atas untuk memantau
+jumlah antrean secara cepat, seperti pesanan yang "Menunggu Validasi Bayar", "Menunggu Validasi Batal", "Reservasi Disetujui", dan "Reservasi Selesai". · Tabel Validasi Pembayaran & Pembatalan: Menampilkan daftar pesanan yang sedang berlangsung atau membutuhkan tindakan. Admin dapat melihat rincian pemesan dan menggunakan tombol Aksi (Validasi Bayar, Validasi Batal, Tandai Selesai) untuk mengubah status transaksi. · Tabel Riwayat Penyewaan: Menampilkan rekaman histori seluruh transaksi yang sudah selesai diproses beserta status akhirnya (seperti "Dibatalkan" atau "Selesai") untuk keperluan rekapitulasi data.
+Prodi Teknik Informatika UTM SKPL-RLFG Halaman 41 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+4.2.6 Tampilan Halaman Laporan Penyewaan & Keuangan
+Gambar 22 Tampilan Halaman Laporan Penyewaan & Keuangan Halaman ini berfungsi sebagai fitur analitik bagi admin untuk merekapitulasi performa penyewaan dan memantau arus kas pemasukan. Komponen utama pada halaman ini meliputi: · Kartu Ringkasan Statistik: Menampilkan akumulasi metrik penting secara
+cepat, yang terdiri dari Total Pendapatan, jumlah Transaksi Lunas, total transaksi Dibatalkan, dan Rata-rata nominal transaksi. · Tabel Laporan Penyewaan: Menyajikan rincian data operasional pesanan (seperti tanggal bermain, nama tim, lapangan, dan durasi) beserta status akhirnya sebagai bahan evaluasi. · Tabel Laporan Keuangan Bulanan: Menampilkan rekapitulasi performa pendapatan dan total transaksi yang dikelompokkan berdasarkan periode bulan tertentu (misalnya: April 2026) untuk memudahkan pembukuan. 4.2.7 Tampilan Halaman Kelola Daftar Membership
+Gambar 23 Tampilan Halaman Kelola Daftar Membership
+Prodi Teknik Informatika UTM SKPL-RLFG Halaman 42 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+Halaman ini dikhususkan bagi admin untuk memantau, memvalidasi, dan mengelola status keanggotaan pelanggan setia Jaya Futsal Gili. Komponen utama pada halaman ini meliputi: · Tabel Data Membership: Menampilkan daftar tim yang mendaftar program
+langganan beserta rincian informasi seperti Nama Tim, jenis Paket (misal: Pro Team, Basic), Masa Aktif, dan Status keanggotaan saat ini (Aktif atau Menunggu Aktivasi). · Tombol "+ Tambah Membership": Tombol aksi yang digunakan oleh admin untuk mendaftarkan data keanggotaan baru secara manual ke dalam sistem. · Kolom Aksi (Edit & Hapus): Fitur manajemen pada setiap baris data yang memungkinkan admin untuk memperbarui informasi status/paket langganan (Edit) atau menghapus data member dari sistem (Hapus). 4.2.8 Tampilan Halaman Form Penambahan & Edit Membership
+Gambar 24 Tampilan Halaman Form Penambahan & Edit Membership Halaman ini menampilkan formulir yang digunakan admin untuk menginput data member baru atau memperbarui detail keanggotaan tim secara manual. Komponen utama pada halaman ini meliputi: · Formulir Input Data: Terdiri dari kolom isian untuk Nama Tim, pilihan jenis
+Paket (misal: Basic), durasi Masa Aktif (misal: 1 Bulan), dan pengaturan Status keanggotaan (misal: Aktif). · Tombol Aksi: Tombol utama "Simpan Membership" untuk mengeksekusi dan menyimpan pembaruan data ke dalam sistem, serta tombol "Batal" untuk mengosongkan formulir. · Navigasi: Terdapat tombol "Kembali ke List" di sudut kanan atas untuk mengarahkan admin kembali ke tabel data membership tanpa menyimpan perubahan.
+Prodi Teknik Informatika UTM SKPL-RLFG Halaman 43 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+4.2.9 Tampilan Halaman Form Kelola Daftar Pelanggan
+Gambar 25 Tampilan Halaman Form Kelola Daftar Pelanggan Halaman ini digunakan oleh admin untuk melihat dan mengelola seluruh data pengguna atau perwakilan tim yang telah terdaftar di sistem Jaya Futsal Gili. Komponen utama pada halaman ini meliputi: · Tabel Daftar Pelanggan: Menampilkan rincian informasi akun pengguna, yang
+mencakup Nama, nomor Telepon yang bisa dihubungi, alamat Email, serta Status akun pengguna tersebut (misal: Member atau Non Member). · Tombol "+ Tambah Pelanggan": Tombol aksi yang memungkinkan admin untuk menambahkan atau mendaftarkan akun pelanggan baru secara manual ke dalam sistem. · Kolom Aksi (Edit & Hapus): Fitur manajemen pada setiap baris data yang berfungsi untuk memperbarui informasi profil pelanggan (Edit) atau menghapus data akun pelanggan dari database (Hapus). 4.2.10 Tampilan Halaman Form Penambahan & Edit Pelangan
+Gambar 26 Tampilan Halaman Form Penambahan & Edit Pelangan
+Prodi Teknik Informatika UTM SKPL-RLFG Halaman 44 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+Halaman ini menyediakan formulir bagi admin untuk mendaftarkan pelanggan baru secara manual atau memperbarui informasi profil pelanggan yang sudah ada di dalam sistem. Komponen utama pada halaman ini meliputi: · Formulir Input Data: Terdiri dari kolom isian untuk Nama Pelanggan, nomor
+Telepon, alamat Email, serta dropdown untuk menentukan Status Membership (misalnya: Member atau Non Member). · Tombol Aksi: Tombol utama "Simpan Pelanggan" (berwarna oranye) untuk mengeksekusi dan menyimpan data akun ke dalam sistem, serta tombol "Batal" untuk mengosongkan isian formulir. · Navigasi: Terdapat tombol "Kembali ke List" di sudut kanan atas untuk mengarahkan admin kembali ke halaman tabel daftar pelanggan tanpa menyimpan perubahan data.
+Prodi Teknik Informatika UTM SKPL-RLFG Halaman 45 dari 45
+Dokumen ini dan informasi yang dimilikinya adalah milik Program Studi Teknik Informatika-UTM dan bersifat rahasia. Dilarang mereproduksi dokumen ini tanpa diketahui oleh Program Studi Teknik Informatika-UTM.
+
+
