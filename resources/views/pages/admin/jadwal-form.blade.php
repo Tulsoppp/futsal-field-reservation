@@ -10,7 +10,7 @@
 
   <main class="py-4 py-lg-5">
     <div class="container">
-      <section class="panel-box admin-form-card mx-auto" style="max-width: 760px">
+      <section class="panel-box admin-form-card mx-auto" >
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
           <div>
             <h2 class="h5 mb-1">Input Jadwal</h2>
@@ -23,36 +23,33 @@
           </a>
         </div>
 
-        <form id="jadwalForm" class="row g-3">
+        <form id="jadwalForm" class="row g-3" method="POST" action="{{ route('buat-jadwal') }}">
+          @csrf
+          
           <input type="hidden" id="jadwalId" />
           <div class="col-md-6">
             <label class="form-label" for="jadwalTanggal">Tanggal</label>
-            <input class="form-control" type="date" id="jadwalTanggal" required />
+            <input class="form-control" type="date" id="jadwalTanggal" required name="tanggal"/>
           </div>
           <div class="col-md-3">
             <label class="form-label" for="jadwalJamMulai">Jam Mulai</label>
-            <input class="form-control" type="time" id="jadwalJamMulai" required />
+            <input class="form-control" type="time" id="jadwalJamMulai" required name="jam_mulai"/>
           </div>
           <div class="col-md-3">
             <label class="form-label" for="jadwalJamSelesai">Jam Selesai</label>
-            <input class="form-control" type="time" id="jadwalJamSelesai" required />
+            <input class="form-control" type="time" id="jadwalJamSelesai" required name="jam_selesai" />
           </div>
           <div class="col-md-6">
-            <label class="form-label" for="jadwalLapangan">Lapangan</label>
-            <select class="form-select" id="jadwalLapangan">
-              <option>Lapangan 1 - Vinyl</option>
-              <option>Lapangan 2 - Rumput Sintetis</option>
-              <option>Lapangan 3 - Vinyl</option>
-              <option>Lapangan 4 - Hybrid</option>
-            </select>
+            <label class="form-label" for="jadwalLapangan">Nama Lapangan</label>
+            <input class="form-control" type="text" id="jadwalLapangan" placeholder="Lapangan A" required name="nama_lapangan" />
           </div>
           <div class="col-md-3">
             <label class="form-label" for="jadwalHarga">Harga/Jam</label>
-            <input class="form-control" type="number" id="jadwalHarga" placeholder="200000" required />
+            <input class="form-control" type="number" id="jadwalHarga" placeholder="200000" required name="harga_per_jam"/>
           </div>
           <div class="col-md-3">
-            <label class="form-label" for="jadwalStatus">Status</label>
-            <select class="form-select" id="jadwalStatus">
+            <label class="form-label" for="jadwalStatus" name>Status</label>
+            <select class="form-select" id="jadwalStatus" name="status">
               <option>Tersedia</option>
               <option>Penuh</option>
               <option>Perawatan</option>

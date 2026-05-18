@@ -51,7 +51,8 @@
             <section class="mb-4 mb-lg-5">
                 <div class="panel-box">
                     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-                        <h2 class="h4 mb-0">Proses Reservasi User</h2>
+                        <h2 class="h4 mb-0">
+                             User</h2>
                         <span class="badge text-bg-dark">Step by Step</span>
                     </div>
                     <p class="text-dark-70 mb-3 booking-caption">
@@ -77,6 +78,9 @@
                         <div class="col-lg-12">
                             <div class="step-panel is-active" data-step="1">
                                 <form class="row g-3" id="bookingForm">
+                                    @csrf
+                                    <input type="hidden" id="reservasiId" value="">
+                                    <input type="hidden" id="id_jadwal" name="id_jadwal" value="1">
                                     <div class="col-12 mb-3">
                                         <div class="form-hint-card">
                                                 <strong>Mulai dari sini:</strong> isi tanggal, jam, dan durasi.
@@ -87,11 +91,17 @@
                                         <div class="booking-input-group row g-3">
                                             <div class="col-md-6">
                                                 <label class="form-label" for="tanggalMain">Tanggal Main</label>
-                                                <input class="form-control" type="date" id="tanggalMain" />
+                                                <input class="form-control" type="date" id="tanggalMain" name="tanggal" required />
+                                                <div id="tanggalError" class="invalid-feedback d-none" style="display: block;">
+                                                    Maaf, jadwal di tanggal ini tidak tersedia / penuh.
+                                                </div>
+                                                <div id="tanggalSuccess" class="valid-feedback d-none" style="display: block; color: green;">
+                                                    Jadwal tersedia! Silakan pilih jam mulai.
+                                                </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label" for="durasiMain">Durasi</label>
-                                                <select class="form-select" id="durasiMain">
+                                                <select class="form-select" id="durasiMain" name="durasi_jam">
                                                     <option value="1">1 Jam</option>
                                                     <option value="2">2 Jam</option>
                                                     <option value="3">3 Jam</option>
@@ -99,18 +109,14 @@
                                             </div>
                                             <div class="col-md-12">
                                                 <label class="form-label" for="jamMain">Jam Mulai</label>
-                                                <select class="form-select" id="jamMain">
-                                                    <option>08:00</option>
-                                                    <option>10:00</option>
-                                                    <option>14:00</option>
-                                                    <option>18:00</option>
-                                                    <option>20:00</option>
+                                                <select class="form-select" id="jamMain" name="jam_mulai" disabled>
+                                                    <option value="">Pilih Tanggal Main Terlebih Dahulu...</option>
                                                 </select>
                                             </div>
                                  
                                             <div class="col-12">
                                                 <label class="form-label" for="catatan">Catatan Tambahan</label>
-                                                <textarea class="form-control" id="catatan" rows="3" placeholder="Contoh: sparing internal, butuh bola 2"></textarea>
+                                                <textarea class="form-control" id="catatan" rows="3" name="catatan" placeholder="Contoh: sparing internal, butuh bola 2"></textarea>
                                             </div>
                                         </div>
                                     </div>
@@ -202,17 +208,17 @@
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label" for="metodeBayar">Metode Pembayaran</label>
-                                        <select class="form-select" id="metodeBayar">
-                                            <option>Transfer Bank</option>
-                                            <option>QRIS</option>
-                                            <option>E-Wallet</option>
+                                        <select class="form-select" id="metodeBayar" name="metode_pembayaran">
+                                            <option value="Transfer Bank">Transfer Bank</option>
+                                            <option value="QRIS">QRIS</option>
+                                            <option value="E-Wallet">E-Wallet</option>
                                         </select>
                                     </div>
                                     <div class="upload-proof mb-3">
                                         <label class="form-label" for="buktiReservasi">
                                             Upload Bukti Pembayaran Reservasi
                                         </label>
-                                        <input class="form-control" type="file" id="buktiReservasi" accept="image/*,.pdf" />
+                                        <input class="form-control" type="file" id="buktiReservasi" accept="image/*,.pdf" name="bukti_pembayaran" />
                                         <small class="text-secondary d-block mt-2" id="buktiReservasiInfo">
                                             Belum ada file dipilih.
                                         </small>
@@ -251,27 +257,27 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>02 Apr 2026</td>
-                                    <td>Lapangan 2</td>
-                                    <td>2 Jam</td>
-                                    <td>Rp360.000</td>
-                                    <td><span class="badge text-bg-success">Selesai</span></td>
-                                </tr>
-                                <tr>
-                                    <td>30 Mar 2026</td>
-                                    <td>Lapangan 1</td>
-                                    <td>1 Jam</td>
-                                    <td>Rp200.000</td>
-                                    <td><span class="badge text-bg-success">Selesai</span></td>
-                                </tr>
-                                <tr>
-                                    <td>28 Mar 2026</td>
-                                    <td>Lapangan 4</td>
-                                    <td>2 Jam</td>
-                                    <td>Rp300.000</td>
-                                    <td><span class="badge text-bg-danger">Dibatalkan</span></td>
-                                </tr>
+                                @forelse ($riwayat ?? [] as $item)
+                                    <tr>
+                                        <td>{{ \Carbon\Carbon::parse($item->jadwal->tanggal)->format('d M Y') }}</td>
+                                        <td>{{ $item->jadwal->nama_lapangan ?? 'Lapangan Utama' }}</td>
+                                        <td>{{ $item->durasi_jam }} Jam</td>
+                                        <td>Rp{{ number_format($item->total_harga, 0, ',', '.') }}</td>
+                                        <td>
+                                            @if ($item->status === 'dibayar')
+                                                <span class="badge text-bg-success">Aktif</span>
+                                            @elseif ($item->status === 'dibatalkan')
+                                                <span class="badge text-bg-danger">Dibatalkan</span>
+                                            @else
+                                                <span class="badge text-bg-warning">Menunggu</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="text-center text-secondary">Belum ada data booking.</td>
+                                    </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
@@ -357,4 +363,209 @@
 
 @push('scripts')
     <script src="{{ asset('assets/js/app.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const bookingForm = document.getElementById('bookingForm');
+            const btnKonfirmasi = document.getElementById('btnKonfirmasi');
+            const btnBatal = document.getElementById('btnBatal');
+            const btnBayar = document.getElementById('btnBayar');
+            const reservasiIdInput = document.getElementById('reservasiId');
+            
+            // Override window.alert sementara untuk menangkap notif dari app.js jika perlu
+            // (Opsional, karena kode fetch kita sendiri yang urus prosesnya)
+
+            const getCsrf = () => bookingForm.querySelector('input[name="_token"]').value;
+
+            // --- 1. Buat Pesanan ---
+            btnKonfirmasi?.addEventListener('click', async () => {
+                // Di app.js sudah pindah step, sekarang kirim data
+                const formData = new FormData(bookingForm);
+                
+                // Ambil harga per jam dari atribut dataset option yang dipilih
+                const jamMainSelect = document.getElementById('jamMain');
+                const selectedOption = jamMainSelect.options[jamMainSelect.selectedIndex];
+                const hargaPerJam = selectedOption ? parseFloat(selectedOption.dataset.harga) || 120000 : 120000;
+                
+                // Hitung total_harga
+                const durasiJam = parseFloat(document.getElementById('durasiMain').value) || 1;
+                const totalHarga = durasiJam * hargaPerJam;
+                
+                formData.append('total_harga', totalHarga);
+                // default metode aja biar lolos validasi awal, akan diupdate pas bayar
+                formData.append('metode_pembayaran', 'Belum bayar');
+
+                try {
+                    const res = await fetch("{{ route('reservasi.buat') }}", {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': getCsrf(),
+                            'Accept': 'application/json'
+                        },
+                        body: formData
+                    });
+
+                    const data = await res.json();
+                    if (!res.ok) {
+                        let errorMsg = data.message || 'Gagal membuat reservasi.';
+                        if (data.errors) {
+                            const firstError = Object.values(data.errors)[0][0];
+                            if (firstError) errorMsg = firstError;
+                        }
+                        alert(errorMsg);
+                        console.log(data);
+                        return;
+                    }
+
+                    // Set reservasi id dari response untuk dipake step selanjutnya
+                    reservasiIdInput.value = data.reservasi.id;
+                    toastr.success(data.message);
+                    
+                    // Trigger klik tombol konfirmasi di app.js untuk move step secara frontend
+                    setSummary("Pesanan terkonfirmasi");
+                    setMaxStep(3);
+                    setStep(3);
+
+                } catch (err) {
+                    console.error(err);
+                }
+            });
+
+            // --- 2. Proses Pembayaran ---
+            btnBayar?.addEventListener('click', async () => {
+                const reservasiId = reservasiIdInput.value;
+                if (!reservasiId) {
+                    alert('Reservasi belum dibuat (ID kosong).');
+                    return;
+                }
+
+                const bukti = document.getElementById('buktiReservasi').files[0];
+                const metode = document.getElementById('metodeBayar').value;
+
+                if(!bukti) {
+                     // alert sudah di handle app.js, skip req
+                     return;
+                }
+
+                const fd = new FormData();
+                fd.append('metode_pembayaran', metode);
+                fd.append('bukti_pembayaran', bukti);
+                
+                // Gunakan id untuk di-inject ke dalam dynamic URL
+                try {
+                    const res = await fetch(`{{ url('/reservasi') }}/${reservasiId}/bayar`, {
+                        method: 'POST',
+                        headers: { 
+                            'X-CSRF-TOKEN': getCsrf(),
+                            'Accept': 'application/json'
+                        },
+                        body: fd
+                    });
+
+                    const data = await res.json();
+                    if (!res.ok) {
+                        alert(data.message || 'Gagal upload pembayaran.');
+                        return;
+                    }
+                    toastr.success(data.message);
+                } catch (err) {
+                    console.error(err);
+                }
+            });
+
+            // --- 3. Batal Pesanan ---
+            btnBatal?.addEventListener('click', async () => {
+                const reservasiId = reservasiIdInput.value;
+                if (!reservasiId) {
+                    alert('Reservasi belum dibuat (ID kosong).');
+                    return;
+                }
+
+                try {
+                    const res = await fetch(`{{ url('/reservasi') }}/${reservasiId}/batal`, {
+                        method: 'POST',
+                        headers: { 
+                            'X-CSRF-TOKEN': getCsrf(),
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    const data = await res.json();
+                    if (!res.ok) {
+                        alert(data.message || 'Gagal membatalkan.');
+                        return;
+                    }
+                    toastr.success(data.message);
+                } catch (err) {
+                    console.error(err);
+                }
+            });
+
+            // --- 4. Cek Ketersediaan Jadwal AJAX ---
+            document.getElementById('tanggalMain')?.addEventListener('change', async function() {
+                const tanggalPilih = this.value;
+                const jamMainSelect = document.getElementById('jamMain');
+                const errMessage = document.getElementById('tanggalError');
+                const successMessage = document.getElementById('tanggalSuccess');
+
+                // Reset state
+                jamMainSelect.innerHTML = '<option value="">Memuat...</option>';
+                jamMainSelect.disabled = true;
+                errMessage.classList.add('d-none');
+                successMessage.classList.add('d-none');
+
+                if(!tanggalPilih) return;
+
+                try {
+                    const response = await fetch(`/reservasi/cek-jadwal?tanggal=${tanggalPilih}`);
+                    const result = await response.json();
+
+                    jamMainSelect.innerHTML = ''; // Kosongkan
+                    
+                    if(result.data && result.data.length > 0) {
+                        successMessage.classList.remove('d-none');
+                        jamMainSelect.disabled = false;
+                        
+                        // Loop data jadwal yang tersedia ke option select
+                        result.data.forEach(j => {
+                            const opt = document.createElement('option');
+                            opt.value = j.jam_mulai; // yang dikirim jam mulai
+
+                            // Ambil string jam:menit saja misalnya 08:00:00 jadi 08:00
+                            const formatMulai = j.jam_mulai.substring(0, 5); 
+                            const formatSelesai = j.jam_selesai.substring(0, 5); 
+
+                            opt.textContent = `${formatMulai} - ${formatSelesai} (${j.nama_lapangan}) - Rp${new Intl.NumberFormat('id-ID').format(j.harga_per_jam)}/jam`;
+                            opt.dataset.id_jadwal = j.id; 
+                            opt.dataset.harga = j.harga_per_jam; 
+                            jamMainSelect.appendChild(opt);
+                        });
+                        
+                        // Auto isi hidden input id_jadwal
+                        document.getElementById('id_jadwal').value = jamMainSelect.options[0].dataset.id_jadwal;
+                        
+                        // Trigger perubahan jam untuk mengupdate ringkasan
+                        jamMainSelect.dispatchEvent(new Event('change'));
+
+                    } else {
+                        // Jika kosong, tampilkan error
+                        errMessage.classList.remove('d-none');
+                        jamMainSelect.innerHTML = '<option value="">Tidak ada jadwal / penuh</option>';
+                        jamMainSelect.disabled = true;
+                    }
+
+                } catch(err) {
+                    console.error(err);
+                    jamMainSelect.innerHTML = '<option value="">Gagal memuat jadwal</option>';
+                }
+            });
+
+            // Update ID jadwal hidden jika user mengganti jam
+            document.getElementById('jamMain')?.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                if(selectedOption && selectedOption.dataset.id_jadwal) {
+                    document.getElementById('id_jadwal').value = selectedOption.dataset.id_jadwal;
+                }
+            });
+        });
+    </script>
 @endpush
