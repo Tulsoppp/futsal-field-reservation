@@ -33,7 +33,22 @@
                 <th>Aksi</th>
               </tr>
             </thead>
-            <tbody id="jadwalTableBody"></tbody>
+            <tbody>
+              @foreach ($jadwals as $item)
+                <tr>
+                  <td>{{ $loop->iteration }}</td>
+                  <td>{{ $item->tanggal }}</td>
+                  <td>{{ $item->jam_mulai }} - {{ $item->jam_selesai }}</td>
+                  <td>{{ $item->nama_lapangan }}</td>
+                  <td>Rp {{ number_format($item->harga_per_jam, 0, ',', '.') }}</td>
+                  <td>{{ $item->status }}</td>
+                  <td>
+                    <a href="#" class="btn btn-sm btn-outline-primary">Edit</a>
+                    <a href="#" class="btn btn-sm btn-outline-danger">Hapus</a>
+                  </td>
+                </tr>
+              @endforeach
+            </tbody>
           </table>
         </div>
       </section>

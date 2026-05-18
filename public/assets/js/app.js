@@ -26,7 +26,22 @@ const bookingStatusBadge = document.getElementById("bookingStatusBadge");
 const hargaFlat = 120000;
 
 function hitungEstimasi() {
-    return hargaFlat;
+    const jamMainSelect = document.getElementById("jamMain");
+    let hargaDin = hargaFlat;
+    if (
+        jamMainSelect &&
+        jamMainSelect.options &&
+        jamMainSelect.selectedIndex >= 0
+    ) {
+        const selectedOpt = jamMainSelect.options[jamMainSelect.selectedIndex];
+        if (selectedOpt && selectedOpt.dataset && selectedOpt.dataset.harga) {
+            hargaDin = parseFloat(selectedOpt.dataset.harga) || hargaFlat;
+        }
+    }
+
+    const durasi =
+        parseFloat(document.getElementById("durasiMain")?.value) || 1;
+    return durasi * hargaDin;
 }
 
 function formatRupiah(nominal) {
@@ -75,10 +90,18 @@ function setSummary(statusText) {
             `<li class="mb-2">Tanggal: <span class="badge text-bg-success ms-1">${tanggal}</span></li>`,
             `<li class="mb-2">Jam: <span class="badge text-bg-primary ms-1">${jam}</span></li>`,
             `<li class="mb-2">Durasi: <span class="badge text-bg-info ms-1">${durasi} jam</span></li>`,
-            `<li class="mb-2">Harga: <span class="badge text-bg-dark ms-1">${formatRupiah(estimasi)}</span></li>`,
+            `<li class="mb-2">Total Harga: <span class="badge text-bg-dark ms-1">${formatRupiah(estimasi)}</span></li>`,
             `<li>Status: <span class="badge text-bg-warning ms-1">${statusText}</span></li>`,
         ].join("");
     }
+
+    // Update Ringkasan Pembayaran di step 3 agar sama
+    const totalPembayaranElems = document.querySelectorAll(
+        '.step-panel[data-step="3"] .estimated-total strong',
+    );
+    totalPembayaranElems.forEach((el) => {
+        el.textContent = formatRupiah(estimasi);
+    });
 }
 
 function updateCatatanPreview() {
@@ -172,15 +195,22 @@ if (estimasiMember && paketMember) {
     estimasiMember.textContent = formatRupiah(Number(paketMember.value || 0));
 }
 
-btnKonfirmasi?.addEventListener("click", () => {
-    setSummary("Pesanan terkonfirmasi");
-    setMaxStep(3);
-    setStep(3);
-});
+// Di-comment atau dimatikan, karena kontrol ganti step sekarang ditangani dari respons backend (di reservasi.blade.php)
+// btnKonfirmasi?.addEventListener("click", () => {
+//    setSummary("Pesanan terkonfirmasi");
+//    setMaxStep(3);
+//    setStep(3);
+//});
 
 btnBayar?.addEventListener("click", () => {
     if (!buktiReservasi?.files?.length) {
         alert("Silakan upload bukti pembayaran reservasi terlebih dahulu.");
+        return;
+    }
+
+    const reservasiId = document.getElementById("reservasiId")?.value;
+    if (!reservasiId) {
+        // Jangan teruskan setStatus ke tahap berikutnya jika submitnya gagal karena ID kosong
         return;
     }
 
