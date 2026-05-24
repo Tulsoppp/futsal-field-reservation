@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\JadwalController;
+use App\Http\Controllers\MembershipController;
 use App\Http\Controllers\ReservasiController;
 use Illuminate\Support\Facades\Route;
 
@@ -10,12 +10,12 @@ Route::view('/', 'pages.user.index')->name('home');
 
 // Guest Routes (Hanya untuk pengguna yang belum login)
 // Route::middleware('guest')->group(function () {
-    Route::view('/login', 'pages.user.login')->name('login');
-    Route::view('/register', 'pages.user.register')->name('register');
+Route::view('/login', 'pages.user.login')->name('login');
+Route::view('/register', 'pages.user.register')->name('register');
 
-    // Memperbaiki sedikit typo di URL proses-rergister menjadi proses-register
-    Route::post('/proses-register', [AuthController::class, 'prosesRegister'])->name('proses-register');
-    Route::post('/proses-login', [AuthController::class, 'prosesLogin'])->name('proses-login');
+// Memperbaiki sedikit typo di URL proses-rergister menjadi proses-register
+Route::post('/proses-register', [AuthController::class, 'prosesRegister'])->name('proses-register');
+Route::post('/proses-login', [AuthController::class, 'prosesLogin'])->name('proses-login');
 // });
 
 // Auth Routes (Hanya untuk pengguna yang SUDAH login)
@@ -24,25 +24,24 @@ Route::middleware('auth')->group(function () {
     // --- GROUP RESERVASI USER ---
     Route::prefix('reservasi')->name('reservasi.')->controller(ReservasiController::class)->group(function () {
         // Halaman Reservasi dan Riwayat Booking
-        Route::get('/', 'tampilRiwayatBooking')->name('riwayat');
+        Route::get('/', 'tampilRiwayatBooking')->name('index'); // diubah menjadi index untuk pemesanan
+        Route::get('/riwayat', 'riwayatLengkap')->name('riwayat-lengkap'); // Halaman tabel riwayat lengkap
 
         // Proses Reservasi
         Route::get('/cek-jadwal', 'cekJadwalTersedia')->name('cek-jadwal');
         Route::post('/', 'buatPesanan')->name('buat');
         Route::post('/{reservasi}/bayar', 'prosesPembayaran')->name('bayar');
         Route::post('/{reservasi}/batal', 'batalkanPesanan')->name('batal');
+        Route::get('/{reservasi}/cetak', 'cetakTiket')->name('cetak');
     });
+
+    // --- GROUP MEMBERSHIP & PROFILE ---
+    Route::post('/membership/register', [MembershipController::class, 'register'])->name('membership.register');
+    Route::get('/profile', [MembershipController::class, 'profile'])->name('profile');
 
     // --- GROUP ADMIN ---
     Route::prefix('admin')->middleware('is_admin')->group(function () {
-        Route::view('/dashboard', 'pages.admin.dashboard')->name('admin.dashboard');
-
-        // Jadwal Routes
-        Route::controller(JadwalController::class)->group(function () {
-            Route::get('/jadwal', 'index')->name('jadwal');
-            Route::get('/jadwal/form', 'tampilForm')->name('jadwal.form');
-            Route::post('/buat-jadwal', 'buatJadwal')->name('buat-jadwal');
-        });
+        Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('admin.dashboard');
 
         // Halaman Admin Reservasi
         Route::controller(\App\Http\Controllers\Admin\ReservasiController::class)->group(function () {
@@ -54,7 +53,13 @@ Route::middleware('auth')->group(function () {
 
         // Halaman Admin Lainnya
         Route::view('/laporan', 'pages.admin.laporan')->name('admin.laporan');
-        Route::view('/membership', 'pages.admin.membership')->name('admin.membership');
+
+        Route::controller(\App\Http\Controllers\Admin\MembershipController::class)->group(function () {
+            Route::get('/membership', 'index')->name('admin.membership');
+            Route::post('/membership/{id}/terima', 'terima')->name('admin.membership.terima');
+            Route::post('/membership/{id}/tolak', 'tolak')->name('admin.membership.tolak');
+        });
+
         Route::view('/membership/form', 'pages.admin.membership-form')->name('admin.membership.form');
         Route::view('/pelanggan', 'pages.admin.pelanggan')->name('admin.pelanggan');
         Route::view('/pelanggan/form', 'pages.admin.pelanggan-form')->name('admin.pelanggan.form');

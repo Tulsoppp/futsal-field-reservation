@@ -14,19 +14,15 @@ class Reservasi extends Model
 
     protected $fillable = [
         'id_user',
-        'id_jadwal',
-        'durasi_jam',
+        'tanggal',
+        'jam_mulai',
+        'jam_selesai',
         'total_harga',
         'status',
         'metode_pembayaran',
         'bukti_pembayaran',
         'catatan'
     ];
-
-    public function jadwal()
-    {
-        return $this->belongsTo(Jadwal::class, 'id_jadwal', 'id');
-    }
 
     public function user()
     {

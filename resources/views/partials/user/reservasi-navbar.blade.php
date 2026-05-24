@@ -21,18 +21,20 @@
           <a class="btn btn-outline-dark rounded-pill px-3" href="{{ url('/register') }}">Register</a>
         </li> --}}
         <li class="nav-item">
-          <a class="nav-link" href="#step-1">Reservasi</a>
+          <a class="nav-link" href="{{ route('reservasi.index') }}#step-1">Reservasi</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#riwayat">Riwayat</a>
+          <a class="nav-link" href="{{ route('reservasi.riwayat-lengkap') }}">Riwayat</a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#membership-form">Membership</a>
-        </li>
-        <li class="nav-item">
-          <button class="btn btn-outline-dark rounded-pill px-3" type="button">Logout</button>
+        <li class="nav-item d-flex align-items-center ms-lg-3 gap-2">
+          <a class="nav-link p-0 d-flex align-items-center gap-2" href="{{ route('profile') }}" title="Lihat Profil & Membership">
+            <img src="{{ asset('assets/img/user-avatar.png') }}" onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->nama ?? 'User') }}&background=0D8ABC&color=fff'" alt="Profile" class="rounded-circle" width="36" height="36" style="object-fit: cover; border: 2px solid #ddd;">
+            <span class="d-none d-lg-inline fw-semibold text-dark">{{ Auth::user()->nama ?? 'Profil Saya' }}</span>
+          </a>
+          <button class="btn btn-outline-danger btn-sm rounded-pill ms-2" type="button" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</button>
         </li>
       </ul>
+      <form id="logout-form" action="{{ route('login') }}" method="GET" class="d-none"></form>
     </div>
   </div>
 </nav>

@@ -10,8 +10,8 @@ class ReservasiController extends Controller
 {
     public function index()
     {
-        // Ambil semua data reservasi termasuk relasi jadwal dan user
-        $reservasi = Reservasi::with(['jadwal', 'user'])->latest()->get();
+        // Ambil semua data reservasi beserta user
+        $reservasi = Reservasi::with('user')->latest()->get();
 
         // Hitung status untuk dashboard / card indikator
         $countMenungguBayar = $reservasi->where('status', 'menunggu')->count();
@@ -41,11 +41,6 @@ class ReservasiController extends Controller
     {
         $reservasi = Reservasi::findOrFail($id);
         $reservasi->status = 'dibatalkan';
-        // bebaskan slot jadwal kembali
-        if ($reservasi->jadwal) {
-            // kalau butuh ganti status jadwal bisa:
-            // $reservasi->jadwal->update(['status' => 'tersedia']);
-        }
         $reservasi->save();
 
         return redirect()->back()->with('success', 'Pembayaran ditolak / reservasi dibatalkan.');

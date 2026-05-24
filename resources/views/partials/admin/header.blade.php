@@ -22,7 +22,6 @@
     </div>
     <nav class="admin-nav mt-3">
       <a class="admin-nav-link {{ $active === 'dashboard' ? 'active' : '' }}" href="{{ url('/admin/dashboard') }}">Dashboard</a>
-      <a class="admin-nav-link {{ $active === 'jadwal' ? 'active' : '' }}" href="{{ url('/admin/jadwal') }}">Kelola Jadwal</a>
       <a class="admin-nav-link {{ $active === 'reservasi' ? 'active' : '' }}" href="{{ url('/admin/reservasi') }}">Kelola Reservasi</a>
       <a class="admin-nav-link {{ $active === 'laporan' ? 'active' : '' }}" href="{{ url('/admin/laporan') }}">Laporan</a>
       <a class="admin-nav-link {{ $active === 'membership' ? 'active' : '' }}" href="{{ url('/admin/membership') }}">Data Membership</a>
