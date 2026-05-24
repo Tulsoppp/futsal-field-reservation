@@ -26,6 +26,10 @@ class User extends Authenticatable
         'status_member',
         'role',
         'password',
+        'membership_type',
+        'membership_status',
+        'membership_proof',
+        'membership_expires_at',
     ];
 
     public function reservasis()

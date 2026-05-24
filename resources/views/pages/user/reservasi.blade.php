@@ -18,6 +18,82 @@
             @if (session())
                 toastr.success(@json(session('success')));
             @endif
+            
+            @if(session('error'))
+                toastr.error(@json(session('error')));
+            @endif
+
+            // Logika menampilkan QRIS
+            document.addEventListener("DOMContentLoaded", function() {
+                const mtBayar = document.getElementById("metodeBayar");
+                const qrisBox = document.getElementById("qrisBox");
+
+                if (mtBayar && qrisBox) {
+                    mtBayar.addEventListener("change", function() {
+                        if (this.value === "QRIS") {
+                            qrisBox.classList.remove("d-none");
+                        } else {
+                            qrisBox.classList.add("d-none");
+                        }
+                    });
+                    
+                    // Trigger load awal kalau default udah QRIS
+                    mtBayar.dispatchEvent(new Event('change'));
+                }
+                
+                // Cek jika ada unfinished payment saat render awal
+                const unpaidId = "{{ $unpaidReservasi ? $unpaidReservasi->id : '' }}";
+                const unpaidTotal = "{{ $unpaidReservasi ? $unpaidReservasi->total_harga : '' }}";
+                
+                if (unpaidId) {
+                    // Trigger setSummary supaya data durasi, jam dan semuanya muncul di Card Samping Kanan
+                    if(typeof setSummary === 'function'){
+                        setSummary('Menunggu pembayaran (Bukti Tagihan)');
+                    }
+
+                    // Set parameter JS
+                    window.currentUnpaidId = unpaidId;
+                    
+                    // Update tampilan nominal jika ada element-nya
+                    const totalPembayaranElems = document.querySelectorAll(
+                        '.step-panel[data-step="3"] .estimated-total strong',
+                    );
+                    totalPembayaranElems.forEach((el) => {
+                        el.textContent = "Rp" + new Intl.NumberFormat("id-ID").format(unpaidTotal);
+                    });
+                    
+                    // Otomatis buka step ke 3
+                    if (typeof setStep === 'function' && typeof setMaxStep === 'function') {
+                        setMaxStep(3);
+                        setStep(3);
+                    }
+                }
+                
+                // Interaksi tombol bayar di tabel riwayat
+                const btnRiwayatList = document.querySelectorAll('.btn-bayar-riwayat');
+                btnRiwayatList.forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const id = this.getAttribute('data-id');
+                        const total = this.getAttribute('data-total');
+                        
+                        document.getElementById('reservasiId').value = id;
+                        
+                        // Update total nominal step 3
+                        const h3Elems = document.querySelectorAll('.step-panel[data-step="3"] .estimated-total strong');
+                        h3Elems.forEach((el) => {
+                            el.textContent = "Rp" + new Intl.NumberFormat("id-ID").format(total);
+                        });
+                        
+                        // Arahkan ke step 3 (scroll ke atas gais)
+                        if (typeof setStep === 'function' && typeof setMaxStep === 'function') {
+                            setMaxStep(3);
+                            setStep(3);
+                            document.getElementById('bookingSteps').scrollIntoView({ behavior: 'smooth' });
+                        }
+                    });
+                });
+            });
         </script>
     @endpush
     <main class="py-4 py-lg-5">
@@ -51,13 +127,17 @@
             <section class="mb-4 mb-lg-5">
                 <div class="panel-box">
                     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-                        <h2 class="h4 mb-0">
-                             User</h2>
+                        <h2 class="h4 mb-0">Form Pemesanan Lapangan</h2>
                         <span class="badge text-bg-dark">Step by Step</span>
                     </div>
                     <p class="text-dark-70 mb-3 booking-caption">
                         Ikuti urutan ini: isi jadwal, cek ringkasan otomatis, lalu konfirmasi dan lakukan
                         pembayaran.
+                        @if(Auth::user() && Auth::user()->membership_status === 'active' && Auth::user()->status_member == 1)
+                            <br><span class="text-success fw-bold"><i class="bi bi-tags-fill"></i> Harga Spesial Member: Rp80.000 / Jam otomatis diterapkan!</span>
+                        @else
+                            <br><span class="text-secondary"><i class="bi bi-info-circle"></i> Harga Normal: Rp100.000 / Jam. (Daftar member untuk dapatkan harga spesial)</span>
+                        @endif
                     </p>
                     <div class="steps-wrap mb-4" id="bookingSteps">
                         <button class="step-item active" id="step-1" type="button" data-step="1">
@@ -79,19 +159,28 @@
                             <div class="step-panel is-active" data-step="1">
                                 <form class="row g-3" id="bookingForm">
                                     @csrf
-                                    <input type="hidden" id="reservasiId" value="">
+                                    <input type="hidden" id="reservasiId" value="{{ $unpaidReservasi ? $unpaidReservasi->id : '' }}">
                                     <input type="hidden" id="id_jadwal" name="id_jadwal" value="1">
                                     <div class="col-12 mb-3">
-                                        <div class="form-hint-card">
+                                        @if($unpaidReservasi)
+                                            <div class="alert alert-danger mb-0">
+                                                <strong>Belum Dibayar!</strong> Anda memiliki pesanan yang belum dibayar. <br>
+                                                Silakan selesaikan pembayaran terlebih dahulu sebelum membuat jadwal baru.
+                                            </div>
+                                        @else
+                                            <div class="form-hint-card">
                                                 <strong>Mulai dari sini:</strong> isi tanggal, jam, dan durasi.
-                                            Ringkasan pesanan akan muncul di langkah berikutnya.
-                                        </div>
+                                                Ringkasan pesanan akan muncul di langkah berikutnya.
+                                            </div>
+                                        @endif
                                     </div>
                                     <div class="col-12">
                                         <div class="booking-input-group row g-3">
                                             <div class="col-md-6">
                                                 <label class="form-label" for="tanggalMain">Tanggal Main</label>
-                                                <input class="form-control" type="date" id="tanggalMain" name="tanggal" required />
+                                                <input class="form-control" type="date" id="tanggalMain" name="tanggal" 
+                                                    value="{{ $unpaidReservasi ? $unpaidReservasi->tanggal : '' }}"
+                                                    {{ $unpaidReservasi ? 'disabled' : 'required' }} />
                                                 <div id="tanggalError" class="invalid-feedback d-none" style="display: block;">
                                                     Maaf, jadwal di tanggal ini tidak tersedia / penuh.
                                                 </div>
@@ -100,28 +189,38 @@
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
-                                                <label class="form-label" for="durasiMain">Durasi</label>
-                                                <select class="form-select" id="durasiMain" name="durasi_jam">
-                                                    <option value="1">1 Jam</option>
-                                                    <option value="2">2 Jam</option>
-                                                    <option value="3">3 Jam</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-12">
                                                 <label class="form-label" for="jamMain">Jam Mulai</label>
                                                 <select class="form-select" id="jamMain" name="jam_mulai" disabled>
-                                                    <option value="">Pilih Tanggal Main Terlebih Dahulu...</option>
+                                                    @if($unpaidReservasi)
+                                                        <option value="{{ substr($unpaidReservasi->jam_mulai, 0, 5) }}" selected>
+                                                            {{ substr($unpaidReservasi->jam_mulai, 0, 5) }}
+                                                        </option>
+                                                    @else
+                                                        <option value="">Pilih Tanggal Main Terlebih Dahulu...</option>
+                                                    @endif
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label" for="jamSelesaiMain">Jam Selesai</label>
+                                                <select class="form-select" id="jamSelesaiMain" name="jam_selesai" disabled>
+                                                    @if($unpaidReservasi)
+                                                        <option value="{{ substr($unpaidReservasi->jam_selesai, 0, 5) }}" selected>
+                                                            {{ substr($unpaidReservasi->jam_selesai, 0, 5) }}
+                                                        </option>
+                                                    @else
+                                                        <option value="">Pilih Jam Mulai Terlebih Dahulu...</option>
+                                                    @endif
                                                 </select>
                                             </div>
                                  
                                             <div class="col-12">
                                                 <label class="form-label" for="catatan">Catatan Tambahan</label>
-                                                <textarea class="form-control" id="catatan" rows="3" name="catatan" placeholder="Contoh: sparing internal, butuh bola 2"></textarea>
+                                                <textarea class="form-control" id="catatan" rows="3" name="catatan" placeholder="Contoh: sparing internal, butuh bola 2" {{ $unpaidReservasi ? 'disabled' : '' }}>{{ $unpaidReservasi ? $unpaidReservasi->catatan : '' }}</textarea>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-12 d-flex justify-content-end">
-                                        <button class="btn btn-accent" id="btnToConfirm" type="button">
+                                        <button class="btn btn-accent" id="btnToConfirm" type="button" {{ $unpaidReservasi ? 'disabled' : '' }}>
                                             Lanjut ke Konfirmasi
                                         </button>
                                     </div>
@@ -209,10 +308,13 @@
                                     <div class="mb-3">
                                         <label class="form-label" for="metodeBayar">Metode Pembayaran</label>
                                         <select class="form-select" id="metodeBayar" name="metode_pembayaran">
-                                            <option value="Transfer Bank">Transfer Bank</option>
+                                        
                                             <option value="QRIS">QRIS</option>
-                                            <option value="E-Wallet">E-Wallet</option>
                                         </select>
+                                    </div>
+                                    <div class="mb-3 d-none text-center p-3 border rounded shadow-sm" id="qrisBox">
+                                        <p class="mb-2 fw-bold">Scan QRIS Berikut:</p>
+                                        <img src="{{ asset('assets/img/qris.png') }}" alt="QRIS Futsal" class="img-fluid" style="max-height: 250px;">
                                     </div>
                                     <div class="upload-proof mb-3">
                                         <label class="form-label" for="buktiReservasi">
@@ -242,9 +344,26 @@
             <section id="riwayat" class="mb-4 mb-lg-5">
                 <div class="panel-box">
                     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-                        <h2 class="h4 mb-0">Melihat Riwayat Booking</h2>
-                        <span class="badge text-bg-secondary">3 Data Terakhir</span>
+                        <h2 class="h4 mb-0">Riwayat Booking Terakhir</h2>
+                        <div>
+                            <span class="badge text-bg-secondary me-2">3 Data Terakhir</span>
+                            <a href="{{ route('reservasi.riwayat-lengkap') }}" class="btn btn-sm btn-outline-dark">Lihat Semua</a>
+                        </div>
                     </div>
+
+                    @php
+                        $adaBelumBayar = collect($riwayat ?? [])->contains(function ($item) {
+                            return $item->status === 'menunggu' && empty($item->bukti_pembayaran);
+                        });
+                    @endphp
+
+                    @if($adaBelumBayar)
+                        <div class="alert alert-warning mb-3">
+                            <strong>Perhatian!</strong> Kamu memiliki reservasi yang belum selesai (belum upload bukti pembayaran). Silakan selesaikan pembayaran dan upload buktinya agar jadwal tidak dibatalkan otomatis.
+                            <br><small><i>(Silakan ulangi proses pilih jadwal yang sama dan lanjutkan ke langkah pembayaran)</i></small>
+                        </div>
+                    @endif
+
                     <div class="table-responsive">
                         <table class="table align-middle">
                             <thead>
@@ -254,17 +373,20 @@
                                     <th>Durasi</th>
                                     <th>Total</th>
                                     <th>Status</th>
+                                    <th>Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse ($riwayat ?? [] as $item)
                                     <tr>
-                                        <td>{{ \Carbon\Carbon::parse($item->jadwal->tanggal)->format('d M Y') }}</td>
-                                        <td>{{ $item->jadwal->nama_lapangan ?? 'Lapangan Utama' }}</td>
-                                        <td>{{ $item->durasi_jam }} Jam</td>
+                                        <td>{{ \Carbon\Carbon::parse($item->tanggal)->format('d M Y') }}</td>
+                                        <td>Lapangan Utama</td>
+                                        <td>{{ substr($item->jam_mulai, 0, 5) }} - {{ substr($item->jam_selesai, 0, 5) }}</td>
                                         <td>Rp{{ number_format($item->total_harga, 0, ',', '.') }}</td>
                                         <td>
-                                            @if ($item->status === 'dibayar')
+                                            @if ($item->status === 'selesai')
+                                                <span class="badge text-bg-primary">Selesai</span>
+                                            @elseif ($item->status === 'dibayar')
                                                 <span class="badge text-bg-success">Aktif</span>
                                             @elseif ($item->status === 'dibatalkan')
                                                 <span class="badge text-bg-danger">Dibatalkan</span>
@@ -272,10 +394,21 @@
                                                 <span class="badge text-bg-warning">Menunggu</span>
                                             @endif
                                         </td>
+                                        <td>
+                                            @if ($item->status === 'menunggu' && empty($item->bukti_pembayaran))
+                                                <button class="btn btn-sm btn-primary btn-bayar-riwayat" 
+                                                    data-id="{{ $item->id }}" 
+                                                    data-total="{{ $item->total_harga }}">
+                                                    Bayar Sekarang
+                                                </button>
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="text-center text-secondary">Belum ada data booking.</td>
+                                        <td colspan="6" class="text-center text-secondary">Belum ada data booking.</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -284,53 +417,48 @@
                 </div>
             </section>
 
-            <section id="membership-form">
+            <section id="membership-form" class="d-none mb-4 mb-lg-5">
                 <div class="panel-box">
                     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                         <h2 class="h4 mb-0">Daftar Membership</h2>
-                        <span class="badge text-bg-success">Paket Tim</span>
+                        <span class="badge text-bg-success">Promo Spesial</span>
+                    </div>
+                    <div class="alert alert-info border-0 shadow-sm rounded">
+                        <strong>Mengapa Member?</strong> Jadilah member dan nikmati harga lebih murah di reservasi kamu berikutnya, prioritas booking, serta beragam promo menarik lainnya. <br>
+                        <em>Catatan:</em> Karena kamu mendaftar dari halaman pemesanan, silakan selesaikan pembayaran lapangan sekaligus pembayaran member di sini (upload bukti pada masing-masing form).
                     </div>
                     <p class="text-dark-70 mb-4">
-                        Isi data tim, pilih paket, lalu upload bukti pembayaran membership.
+                        Isi form di bawah ini lalu lakukan pembayaran via QRIS untuk mengaktifkan membership.
                     </p>
                     <div class="row g-4">
                         <div class="col-lg-7">
-                            <form class="booking-input-group row g-3" id="membershipForm">
+                            <form class="booking-input-group row g-3" id="formDaftarMembership" onsubmit="event.preventDefault(); submitMembership();">
+                                @csrf
                                 <div class="col-md-6">
                                     <label class="form-label" for="paketMember">Pilih Paket</label>
-                                    <select class="form-select" id="paketMember">
-                                        <option value="149000">Basic - Rp149.000</option>
-                                        <option value="299000">Pro Team - Rp299.000</option>
-                                        <option value="449000">Elite League - Rp449.000</option>
+                                    <select class="form-select" id="paketMember" name="membership_type" required>
+                                        <option value="149000">Basic (1 Bulan) - Rp149.000</option>
+                                        <option value="299000">Pro Team (2 Bulan) - Rp299.000</option>
+                                        <option value="449000">Elite League (6 Bulan) - Rp449.000</option>
                                     </select>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label" for="metodeBayarMember">Metode Pembayaran</label>
-                                    <select class="form-select" id="metodeBayarMember">
-                                        <option>Transfer Bank</option>
-                                        <option>QRIS</option>
-                                        <option>E-Wallet</option>
+                                    <select class="form-select" id="metodeBayarMember" disabled>
+                                        <option value="QRIS" selected>QRIS Resmi</option>
                                     </select>
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="form-label" for="namaPIC">Nama PIC</label>
-                                    <input class="form-control" type="text" id="namaPIC"
-                                        placeholder="Nama penanggung jawab" />
+
+                                <div class="col-12 mt-3 text-center p-3 border rounded shadow-sm">
+                                    <p class="mb-2 fw-bold">Scan QRIS Untuk Bayar Membership:</p>
+                                    <img src="{{ asset('assets/img/qris.png') }}" alt="QRIS Futsal" class="img-fluid" style="max-height: 250px;">
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="form-label" for="kontakPIC">Kontak PIC</label>
-                                    <input class="form-control" type="text" id="kontakPIC"
-                                        placeholder="08xxxxxxxxxx" />
-                                </div>
-                                <div class="col-12">
+
+                                <div class="col-12 mt-3">
                                     <label class="form-label" for="buktiMembership">
-                                        Upload Bukti Pembayaran Membership
+                                        Upload Bukti Bayar Membership
                                     </label>
-                                    <input class="form-control" type="file" id="buktiMembership"
-                                        accept="image/*,.pdf" />
-                                    <small class="text-secondary d-block mt-2" id="buktiMembershipInfo">
-                                        Belum ada file dipilih.
-                                    </small>
+                                    <input class="form-control" type="file" id="buktiMembership" name="bukti_membership" accept="image/*,.pdf" required />
                                 </div>
                             </form>
                         </div>
@@ -338,19 +466,18 @@
                             <div class="order-summary membership-summary">
                                 <h3 class="h5 mb-3">Ringkasan Membership</h3>
                                 <ul class="list-unstyled mb-3 small">
-                                    <li>Paket: Menunggu pilihan</li>
-                                    <li>Status: Menunggu pembayaran</li>
-                                    <li>Aktivasi: Maks. 1x24 jam setelah verifikasi</li>
+                                    <li>Paket Terpilih: <span id="lblPaketMember">-</span></li>
+                                    <li>Masa Aktif: <span id="lblMasaAktif">-</span></li>
                                 </ul>
                                 <div class="estimated-total mb-3">
-                                    Total Membership
-                                    <strong id="estimasiMember">Rp149.000</strong>
+                                    Total Harga
+                                    <strong id="estimasiMemberText">Rp149.000</strong>
                                 </div>
-                                <button class="btn btn-accent w-100" id="btnDaftarMembership" type="button">
+                                <button class="btn btn-accent w-100" id="btnDaftarMembership" type="button" onclick="submitMembership()">
                                     Kirim Data Membership
                                 </button>
                                 <small class="text-secondary d-block mt-2">
-                                    Format file bukti: JPG, PNG, atau PDF. Maksimal 2MB.
+                                    Format file bukti: JPG, PNG. Maksimal 2MB.
                                 </small>
                             </div>
                         </div>
@@ -359,9 +486,36 @@
             </section>
         </div>
     </main>
+
+    <!-- Modal Penawaran Member -->
+    <div class="modal fade" id="modalTawaranMember" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header bg-dark text-white border-0">
+                    <h5 class="modal-title"><i class="bi bi-star-fill text-warning me-2"></i>Tawaran Spesial Member!</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 text-center">
+                    <img src="{{ asset('assets/img/undraw_discount.svg') }}" onerror="this.style.display='none'" class="img-fluid mb-4" width="150" alt="Promo">
+                    <h5>Mau Gabung Member Jaya Futsal?</h5>
+                    <p class="text-muted">
+                        Dapatkan banyak keuntungan, diskon rutin, dan prioritas booking saat turnamen atau event!
+                    </p>
+                </div>
+                <div class="modal-footer border-0 d-flex justify-content-center pb-4">
+                    <button type="button" class="btn btn-outline-secondary px-4 rounded-pill" id="btnTolakMember">Tidak, Cuma Booking</button>
+                    <button type="button" class="btn btn-warning px-4 rounded-pill text-dark fw-bold" id="btnTerimaMember">Ya, Saya Mau!</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
+    <script>
+        // Set harga dinamis menggunakan Blade: Jika member aktif dapat harga 80RB, jika bukan 100RB
+        window.HARGA_SEWA = {{ (Auth::user() && Auth::user()->membership_status === 'active' && Auth::user()->status_member == 1) ? 80000 : 100000 }};
+    </script>
     <script src="{{ asset('assets/js/app.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -376,22 +530,37 @@
 
             const getCsrf = () => bookingForm.querySelector('input[name="_token"]').value;
 
+            let wantMembership = false;
+            let tawaranModal = null;
+            
+            const isUserMember = {{ (empty(Auth::user()->membership_type) || Auth::user()->membership_status === 'rejected') ? 'false' : 'true' }};
+
             // --- 1. Buat Pesanan ---
             btnKonfirmasi?.addEventListener('click', async () => {
-                // Di app.js sudah pindah step, sekarang kirim data
+                if (!isUserMember) {
+                    if (!tawaranModal) {
+                        tawaranModal = new bootstrap.Modal(document.getElementById('modalTawaranMember'));
+                    }
+                    tawaranModal.show();
+                    return; // pending until modal interacted
+                } else {
+                    processBooking(false);
+                }
+            });
+
+            document.getElementById('btnTolakMember')?.addEventListener('click', () => {
+                if(tawaranModal) tawaranModal.hide();
+                processBooking(false);
+            });
+
+            document.getElementById('btnTerimaMember')?.addEventListener('click', () => {
+                if(tawaranModal) tawaranModal.hide();
+                processBooking(true);
+            });
+
+            async function processBooking(wantsToJoinMember) {
+                // ... same logic
                 const formData = new FormData(bookingForm);
-                
-                // Ambil harga per jam dari atribut dataset option yang dipilih
-                const jamMainSelect = document.getElementById('jamMain');
-                const selectedOption = jamMainSelect.options[jamMainSelect.selectedIndex];
-                const hargaPerJam = selectedOption ? parseFloat(selectedOption.dataset.harga) || 120000 : 120000;
-                
-                // Hitung total_harga
-                const durasiJam = parseFloat(document.getElementById('durasiMain').value) || 1;
-                const totalHarga = durasiJam * hargaPerJam;
-                
-                formData.append('total_harga', totalHarga);
-                // default metode aja biar lolos validasi awal, akan diupdate pas bayar
                 formData.append('metode_pembayaran', 'Belum bayar');
 
                 try {
@@ -412,23 +581,90 @@
                             if (firstError) errorMsg = firstError;
                         }
                         alert(errorMsg);
-                        console.log(data);
                         return;
                     }
 
-                    // Set reservasi id dari response untuk dipake step selanjutnya
                     reservasiIdInput.value = data.reservasi.id;
                     toastr.success(data.message);
                     
-                    // Trigger klik tombol konfirmasi di app.js untuk move step secara frontend
                     setSummary("Pesanan terkonfirmasi");
                     setMaxStep(3);
                     setStep(3);
 
+                    if (wantsToJoinMember) {
+                        const mForm = document.getElementById('membership-form');
+                        mForm.classList.remove('d-none');
+                        mForm.scrollIntoView({ behavior: 'smooth' });
+                    }
+
                 } catch (err) {
                     console.error(err);
                 }
-            });
+            }
+
+            // Update perhitungan Member UI
+            const selectPaketMember = document.getElementById('paketMember');
+            const lblPaketMember = document.getElementById('lblPaketMember');
+            const lblMasaAktif = document.getElementById('lblMasaAktif');
+            const estimasiMemberText = document.getElementById('estimasiMemberText');
+
+            function updateMemberUI() {
+                if(!selectPaketMember) return;
+                const val = selectPaketMember.value;
+                let nama = 'Basic';
+                let aktif = '1 Bulan';
+                if(val == '299000') { nama = 'Pro Team'; aktif = '2 Bulan'; }
+                if(val == '449000') { nama = 'Elite League'; aktif = '6 Bulan'; }
+                
+                if(lblPaketMember) lblPaketMember.innerHTML = `<b>${nama}</b>`;
+                if(lblMasaAktif) lblMasaAktif.innerHTML = `<b>${aktif}</b>`;
+                if(estimasiMemberText) estimasiMemberText.textContent = "Rp" + new Intl.NumberFormat("id-ID").format(val);
+            }
+            selectPaketMember?.addEventListener('change', updateMemberUI);
+            updateMemberUI();
+
+            // Submit Membership
+            window.submitMembership = async function() {
+                const f = document.getElementById('formDaftarMembership');
+                const btn = document.getElementById('btnDaftarMembership');
+                const formData = new FormData(f);
+                
+                if(!document.getElementById('buktiMembership').files.length) {
+                    alert("Harap upload bukti pembayaran membership!");
+                    return;
+                }
+
+                btn.disabled = true;
+                btn.innerHTML = 'Mengirim...';
+
+                try {
+                    const res = await fetch("{{ route('membership.register') }}", {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': getCsrf(),
+                            'Accept': 'application/json'
+                        },
+                        body: formData
+                    });
+                    const d = await res.json();
+
+                    if (!res.ok) {
+                        let eMsg = d.message || 'Gagal.';
+                        alert(eMsg);
+                    } else {
+                        toastr.success(d.message);
+                        f.reset();
+                        document.getElementById('membership-form').classList.add('d-none');
+                        setTimeout(() => {
+                            window.location.reload(); 
+                        }, 2000);
+                    }
+                } catch(e) {
+                    console.error(e);
+                }
+                btn.disabled = false;
+                btn.innerHTML = 'Kirim Data Membership';
+            };
 
             // --- 2. Proses Pembayaran ---
             btnBayar?.addEventListener('click', async () => {
@@ -515,39 +751,56 @@
 
                 if(!tanggalPilih) return;
 
+                let jadwalOperasional = [];
+
                 try {
                     const response = await fetch(`/reservasi/cek-jadwal?tanggal=${tanggalPilih}`);
                     const result = await response.json();
+                    
+                    jadwalOperasional = result.data || [];
 
                     jamMainSelect.innerHTML = ''; // Kosongkan
                     
-                    if(result.data && result.data.length > 0) {
-                        successMessage.classList.remove('d-none');
-                        jamMainSelect.disabled = false;
+                    if(jadwalOperasional.length > 0) {
+                        let adaTersedia = false;
                         
                         // Loop data jadwal yang tersedia ke option select
-                        result.data.forEach(j => {
+                        jadwalOperasional.forEach(j => {
                             const opt = document.createElement('option');
-                            opt.value = j.jam_mulai; // yang dikirim jam mulai
+                            opt.value = j.jam; 
 
-                            // Ambil string jam:menit saja misalnya 08:00:00 jadi 08:00
-                            const formatMulai = j.jam_mulai.substring(0, 5); 
-                            const formatSelesai = j.jam_selesai.substring(0, 5); 
-
-                            opt.textContent = `${formatMulai} - ${formatSelesai} (${j.nama_lapangan}) - Rp${new Intl.NumberFormat('id-ID').format(j.harga_per_jam)}/jam`;
-                            opt.dataset.id_jadwal = j.id; 
-                            opt.dataset.harga = j.harga_per_jam; 
+                            if (j.status === 'Tersedia') {
+                                opt.textContent = `${j.jam} (Tersedia)`;
+                                adaTersedia = true;
+                            } else {
+                                opt.textContent = `${j.jam} - ${j.keterangan}`;
+                                opt.disabled = true;
+                            }
+                            
                             jamMainSelect.appendChild(opt);
                         });
                         
-                        // Auto isi hidden input id_jadwal
-                        document.getElementById('id_jadwal').value = jamMainSelect.options[0].dataset.id_jadwal;
-                        
-                        // Trigger perubahan jam untuk mengupdate ringkasan
-                        jamMainSelect.dispatchEvent(new Event('change'));
+                        if (adaTersedia) {
+                            successMessage.classList.remove('d-none');
+                            jamMainSelect.disabled = false;
+                            
+                            // Pilih otomatis option pertama yang tidak disabled
+                            for (let i = 0; i < jamMainSelect.options.length; i++) {
+                                if (!jamMainSelect.options[i].disabled) {
+                                    jamMainSelect.selectedIndex = i;
+                                    break;
+                                }
+                            }
+                            
+                            // Trigger perubahan jam untuk mengupdate jam selesai
+                            jamMainSelect.dispatchEvent(new Event('change'));
+                        } else {
+                            errMessage.classList.remove('d-none');
+                            jamMainSelect.innerHTML = '<option value="">Semua jadwal penuh</option>';
+                            jamMainSelect.disabled = true;
+                        }
 
                     } else {
-                        // Jika kosong, tampilkan error
                         errMessage.classList.remove('d-none');
                         jamMainSelect.innerHTML = '<option value="">Tidak ada jadwal / penuh</option>';
                         jamMainSelect.disabled = true;
@@ -557,14 +810,61 @@
                     console.error(err);
                     jamMainSelect.innerHTML = '<option value="">Gagal memuat jadwal</option>';
                 }
+                
+                // Menyimpan data operasional agar bisa diakses oleh change listener jamMain
+                jamMainSelect.dataset.operasional = JSON.stringify(jadwalOperasional);
             });
 
-            // Update ID jadwal hidden jika user mengganti jam
+            // Update Jam Selesai saat Jam Mulai dipilih
             document.getElementById('jamMain')?.addEventListener('change', function() {
-                const selectedOption = this.options[this.selectedIndex];
-                if(selectedOption && selectedOption.dataset.id_jadwal) {
-                    document.getElementById('id_jadwal').value = selectedOption.dataset.id_jadwal;
+                const jamMainVal = this.value;
+                const jamSelesaiSelect = document.getElementById('jamSelesaiMain');
+                
+                jamSelesaiSelect.innerHTML = '';
+                jamSelesaiSelect.disabled = true;
+                
+                if (!jamMainVal) return;
+                
+                const jadwalOperasional = JSON.parse(this.dataset.operasional || '[]');
+                
+                // Cari index jam mulai
+                const startIndex = jadwalOperasional.findIndex(j => j.jam === jamMainVal);
+                if (startIndex === -1) return;
+                
+                jamSelesaiSelect.disabled = false;
+                
+                // Maksimal booking mungkin bisa kita batasi misal 1-5 jam, pastikan jam berurut tersedia
+                let maxDurasi = 5; 
+                let curDurasi = 1;
+                
+                for (let i = startIndex + 1; i <= jadwalOperasional.length; i++) {
+                    if (curDurasi > maxDurasi) break;
+                    
+                    // Kita bisa ambil jam selanjutnya. Jika mencapai jam penutup (misal index out of bound), kita gunakan jam + 1.
+                    let jamSelesaiStr = '';
+                    if (i < jadwalOperasional.length) {
+                        // Cek apakah slot jam ini tersedia, kalau penuh langsung break (tidak bisa di-book sampai sini)
+                        if (jadwalOperasional[i].status !== 'Tersedia') break;
+                        jamSelesaiStr = jadwalOperasional[i].jam;
+                    } else {
+                        // Hitung manual untuk jam tutup (setelah slot terakhir)
+                        let lastJam = parseInt(jadwalOperasional[i-1].jam.split(':')[0]);
+                        jamSelesaiStr = (lastJam + 1).toString().padStart(2, '0') + ':00';
+                    }
+                    
+                    const opt = document.createElement('option');
+                    opt.value = jamSelesaiStr;
+                    opt.textContent = `${jamSelesaiStr} (${curDurasi} Jam)`;
+                    jamSelesaiSelect.appendChild(opt);
+                    
+                    curDurasi++;
                 }
+
+                jamSelesaiSelect.dispatchEvent(new Event('change'));
+            });
+            
+            document.getElementById('jamSelesaiMain')?.addEventListener('change', function() {
+                // Update hal lain jika diperlukan
             });
         });
     </script>

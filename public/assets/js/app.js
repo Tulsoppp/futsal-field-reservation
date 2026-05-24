@@ -23,25 +23,24 @@ const catatanPreview = document.getElementById("catatanPreview");
 const bookingStatusText = document.getElementById("bookingStatusText");
 const bookingStatusBadge = document.getElementById("bookingStatusBadge");
 
-const hargaFlat = 120000;
+// Harga ambil dari variabel global (yang akan diset oleh backend dari blade),
+// kalau belum didefinisikan pakai default 100000
+const hargaFlat =
+    typeof window.HARGA_SEWA !== "undefined" ? window.HARGA_SEWA : 100000;
 
 function hitungEstimasi() {
-    const jamMainSelect = document.getElementById("jamMain");
-    let hargaDin = hargaFlat;
-    if (
-        jamMainSelect &&
-        jamMainSelect.options &&
-        jamMainSelect.selectedIndex >= 0
-    ) {
-        const selectedOpt = jamMainSelect.options[jamMainSelect.selectedIndex];
-        if (selectedOpt && selectedOpt.dataset && selectedOpt.dataset.harga) {
-            hargaDin = parseFloat(selectedOpt.dataset.harga) || hargaFlat;
-        }
+    const jamMain = document.getElementById("jamMain")?.value;
+    const jamSelesaiMain = document.getElementById("jamSelesaiMain")?.value;
+    let durasi = 1;
+
+    if (jamMain && jamSelesaiMain) {
+        const hMulai = parseInt(jamMain.split(":")[0]);
+        const hSelesai = parseInt(jamSelesaiMain.split(":")[0]);
+        durasi = hSelesai - hMulai;
+        if (durasi < 1) durasi = 1;
     }
 
-    const durasi =
-        parseFloat(document.getElementById("durasiMain")?.value) || 1;
-    return durasi * hargaDin;
+    return durasi * hargaFlat;
 }
 
 function formatRupiah(nominal) {
@@ -65,8 +64,17 @@ function tampilkanNamaFile(inputFile, targetInfo) {
 
 function setSummary(statusText) {
     const tanggal = document.getElementById("tanggalMain")?.value || "-";
-    const jam = document.getElementById("jamMain")?.value || "-";
-    const durasi = document.getElementById("durasiMain")?.value || "-";
+    const jamMulai = document.getElementById("jamMain")?.value || "-";
+    const jamSelesai = document.getElementById("jamSelesaiMain")?.value || "-";
+
+    let durasi = "-";
+    if (jamMulai !== "-" && jamSelesai !== "-") {
+        durasi =
+            parseInt(jamSelesai.split(":")[0]) -
+            parseInt(jamMulai.split(":")[0]);
+    }
+
+    const jamText = jamMulai !== "-" ? `${jamMulai} s/d ${jamSelesai}` : "-";
     const estimasi = hitungEstimasi();
 
     if (!summaryList) {
@@ -75,7 +83,7 @@ function setSummary(statusText) {
 
     summaryList.innerHTML = [
         `<li class="mb-2">Tanggal: <span class="badge text-bg-success ms-1">${tanggal}</span></li>`,
-        `<li class="mb-2">Jam: <span class="badge text-bg-primary ms-1">${jam}</span></li>`,
+        `<li class="mb-2">Jam: <span class="badge text-bg-primary ms-1">${jamText}</span></li>`,
         `<li class="mb-2">Durasi: <span class="badge text-bg-info ms-1">${durasi} jam</span></li>`,
         `<li class="mb-2">Harga: <span class="badge text-bg-dark ms-1">${formatRupiah(estimasi)}</span></li>`,
         `<li>Status: <span class="badge text-bg-warning ms-1">${statusText}</span></li>`,
@@ -88,7 +96,7 @@ function setSummary(statusText) {
     if (summaryListFinal) {
         summaryListFinal.innerHTML = [
             `<li class="mb-2">Tanggal: <span class="badge text-bg-success ms-1">${tanggal}</span></li>`,
-            `<li class="mb-2">Jam: <span class="badge text-bg-primary ms-1">${jam}</span></li>`,
+            `<li class="mb-2">Jam: <span class="badge text-bg-primary ms-1">${jamText}</span></li>`,
             `<li class="mb-2">Durasi: <span class="badge text-bg-info ms-1">${durasi} jam</span></li>`,
             `<li class="mb-2">Total Harga: <span class="badge text-bg-dark ms-1">${formatRupiah(estimasi)}</span></li>`,
             `<li>Status: <span class="badge text-bg-warning ms-1">${statusText}</span></li>`,

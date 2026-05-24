@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('reservasis', function (Blueprint $table) {
             $table->id();
             $table->foreignId('id_user')->constrained('users')->onDelete('cascade');
-            $table->foreignId('id_jadwal')->constrained('jadwals', 'id')->onDelete('cascade');
-            $table->unsignedTinyInteger('durasi_jam'); // untuk menyimpan durasi jam yang dipesan oleh pengguna
+            $table->date('tanggal'); // Tanggal booking lapangan
+            $table->time('jam_mulai'); // Jam mulai booking (misal: 19:00:00)
+            $table->time('jam_selesai'); // Jam selesai booking
             $table->unsignedBigInteger('total_harga');
             $table->string('status')->default('menunggu');  // status reservasi: menunggu, dibayar, dibatalkan
             $table->string('metode_pembayaran')->nullable(); // untuk menyimpan metode pembayaran yang dipilih oleh pengguna, misalnya 'transfer bank', 'e-wallet', dll.
@@ -24,7 +25,7 @@ return new class extends Migration
             $table->timestamps();
         });
     }
-    
+
 
     /**
      * Reverse the migrations.

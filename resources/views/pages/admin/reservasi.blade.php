@@ -67,10 +67,12 @@
                     <td>#RSV-{{ str_pad($r->id, 4, '0', STR_PAD_LEFT) }}</td>
                     <td>{{ $r->user->nama ?? 'Unknown' }}<br><small class="text-secondary">{{ $r->catatan }}</small></td>
                     <td>
-                      {{ \Carbon\Carbon::parse($r->jadwal->tanggal)->format('d M Y') }}<br>
-                      <span class="badge text-bg-secondary">{{ $r->jadwal->nama_lapangan }}</span>
+                      {{ \Carbon\Carbon::parse($r->tanggal)->format('d M Y') }}<br>
+                      <span class="badge text-bg-secondary">Lapangan Utama</span>
                     </td>
-                    <td>{{ \Carbon\Carbon::parse($r->jadwal->jam_mulai)->format('H:i') }} ({{ $r->durasi_jam }} Jam)</td>
+                    <td>
+                      {{ \Carbon\Carbon::parse($r->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($r->jam_selesai)->format('H:i') }}
+                    </td>
                     <td>
                       Rp{{ number_format($r->total_harga, 0, ',', '.') }}<br>
                       @if($r->bukti_pembayaran)
@@ -137,9 +139,9 @@
                 @if(in_array($rev->status, ['selesai', 'dibatalkan']))
                   <tr>
                     <td>#RSV-{{ str_pad($rev->id, 4, '0', STR_PAD_LEFT) }}</td>
-                    <td>{{ \Carbon\Carbon::parse($rev->jadwal->tanggal)->format('d M Y') }}</td>
+                    <td>{{ \Carbon\Carbon::parse($rev->tanggal)->format('d M Y') }}</td>
                     <td>{{ $rev->user->nama ?? '-' }}</td>
-                    <td>{{ $rev->jadwal->nama_lapangan ?? '-' }}</td>
+                    <td>Lapangan Utama</td>
                     <td>Rp{{ number_format($rev->total_harga, 0, ',', '.') }}</td>
                     <td>
                       @if($rev->status === 'selesai')
