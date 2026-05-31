@@ -43,7 +43,14 @@
                   <td><span class="badge text-bg-dark">{{ $m->membership_type }}</span></td>
                   <td>
                     @if($m->membership_proof)
-                      <a href="{{ asset('storage/' . $m->membership_proof) }}" target="_blank" class="badge bg-info text-decoration-none">Cek Bukti</a>
+                      <button
+                        class="badge bg-info text-decoration-none border-0"
+                        type="button"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modalBuktiMembership"
+                        data-bs-file="{{ asset('storage/' . $m->membership_proof) }}">
+                        Cek Bukti
+                      </button>
                     @else
                       -
                     @endif
@@ -84,4 +91,79 @@
       </section>
     </div>
   </main>
+
+  <div class="modal fade" id="modalBuktiMembership" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Bukti Membership</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+          <img id="buktiMembershipImg" src="" alt="Bukti Membership" class="img-fluid rounded d-none" />
+          <iframe id="buktiMembershipFrame" class="w-100 d-none" style="height: 70vh" title="Bukti Membership"></iframe>
+          <div id="buktiMembershipFallback" class="text-secondary small mt-3 d-none">
+            File tidak dapat ditampilkan. Silakan unduh:
+            <a id="buktiMembershipLink" href="#" target="_blank" rel="noopener">Buka Bukti</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  @push('scripts')
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const modal = document.getElementById('modalBuktiMembership');
+        const img = document.getElementById('buktiMembershipImg');
+        const frame = document.getElementById('buktiMembershipFrame');
+        const fallback = document.getElementById('buktiMembershipFallback');
+        const link = document.getElementById('buktiMembershipLink');
+
+        if (!modal || !img) {
+          return;
+        }
+
+        modal.addEventListener('show.bs.modal', (event) => {
+          const button = event.relatedTarget;
+          const fileUrl = button?.getAttribute('data-bs-file') || '';
+          const isPdf = fileUrl.toLowerCase().endsWith('.pdf');
+
+          img.classList.add('d-none');
+          frame.classList.add('d-none');
+          fallback.classList.add('d-none');
+
+          if (!fileUrl) {
+            fallback.classList.remove('d-none');
+            link.setAttribute('href', '#');
+            return;
+          }
+
+          link.setAttribute('href', fileUrl);
+
+          if (isPdf) {
+            frame.src = fileUrl;
+            frame.classList.remove('d-none');
+            return;
+          }
+
+          img.onerror = () => {
+            img.classList.add('d-none');
+            fallback.classList.remove('d-none');
+          };
+          img.src = fileUrl;
+          img.classList.remove('d-none');
+        });
+
+        modal.addEventListener('hidden.bs.modal', () => {
+          img.src = '';
+          frame.src = '';
+          img.onerror = null;
+          img.classList.add('d-none');
+          frame.classList.add('d-none');
+          fallback.classList.add('d-none');
+        });
+      });
+    </script>
+  @endpush
 @endsection

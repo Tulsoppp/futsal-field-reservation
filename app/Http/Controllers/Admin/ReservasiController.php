@@ -14,9 +14,9 @@ class ReservasiController extends Controller
         $reservasi = Reservasi::with('user')->latest()->get();
 
         // Hitung status untuk dashboard / card indikator
-        $countMenungguBayar = $reservasi->where('status', 'menunggu')->count();
+        $countMenungguBayar = $reservasi->where('status', 'pending')->count();
         $countMenungguBatal = 0; // opsional, jika kamu mau deteksi cancel request (misalkan ada status 'menunggu_batal')
-        $countDisetujui = $reservasi->where('status', 'dibayar')->count();
+        $countDisetujui = $reservasi->whereIn('status', ['disetujui', 'dibayar'])->count();
         $countSelesai = $reservasi->where('status', 'selesai')->count();
 
         return view('pages.admin.reservasi', compact(
@@ -31,7 +31,7 @@ class ReservasiController extends Controller
     public function terimaPembayaran(Request $request, $id)
     {
         $reservasi = Reservasi::findOrFail($id);
-        $reservasi->status = 'dibayar'; // kita asumsikan status "dibayar" berarti "aktif/terima"
+        $reservasi->status = 'disetujui';
         $reservasi->save();
 
         return redirect()->back()->with('success', 'Pembayaran berhasil dikonfirmasi.');

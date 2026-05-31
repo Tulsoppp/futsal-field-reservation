@@ -62,7 +62,7 @@
             </thead>
             <tbody id="reservasiTableBody">
               @forelse($reservasi ?? [] as $r)
-                @if(in_array($r->status, ['menunggu', 'dibayar', 'menunggu_pembayaran']))
+                @if(in_array($r->status, ['menunggu', 'pending', 'disetujui', 'dibayar']))
                   <tr>
                     <td>#RSV-{{ str_pad($r->id, 4, '0', STR_PAD_LEFT) }}</td>
                     <td>{{ $r->user->nama ?? 'Unknown' }}<br><small class="text-secondary">{{ $r->catatan }}</small></td>
@@ -76,21 +76,30 @@
                     <td>
                       Rp{{ number_format($r->total_harga, 0, ',', '.') }}<br>
                       @if($r->bukti_pembayaran)
-                        <a href="{{ asset('storage/' . $r->bukti_pembayaran) }}" target="_blank" class="badge text-bg-info text-decoration-none">Lihat Bukti</a>
+                        <button
+                          class="badge text-bg-info text-decoration-none border-0"
+                          type="button"
+                          data-bs-toggle="modal"
+                          data-bs-target="#modalBuktiPembayaran"
+                          data-bs-file="{{ asset('storage/' . $r->bukti_pembayaran) }}">
+                          Lihat Bukti
+                        </button>
                       @else
                         <span class="badge text-bg-light">Belum Upload</span>
                       @endif
                     </td>
                     <td>
                       @if($r->status === 'menunggu')
-                        <span class="badge text-bg-warning">Pending</span>
-                      @elseif($r->status === 'dibayar')
-                         <span class="badge text-bg-success">Aktif / Disetujui</span>
+                        <span class="badge text-bg-warning">Menunggu Pembayaran</span>
+                      @elseif($r->status === 'pending')
+                        <span class="badge text-bg-info">Menunggu Konfirmasi</span>
+                      @elseif(in_array($r->status, ['disetujui', 'dibayar']))
+                         <span class="badge text-bg-success">Disetujui</span>
                       @endif
                     </td>
                     <td>
                       <div class="d-flex gap-1">
-                        @if($r->status === 'menunggu')
+                        @if($r->status === 'pending')
                           <form action="{{ route('admin.reservasi.terima', $r->id) }}" method="POST">
                             @csrf
                             <button class="btn btn-sm btn-success" type="submit">Terima</button>
@@ -99,11 +108,13 @@
                             @csrf
                             <button class="btn btn-sm btn-danger" type="submit" onclick="return confirm('Tolak & Batalkan?')">Tolak</button>
                           </form>
-                        @elseif($r->status === 'dibayar')
+                        @elseif(in_array($r->status, ['disetujui', 'dibayar']))
                           <form action="{{ route('admin.reservasi.selesai', $r->id) }}" method="POST">
                             @csrf
                             <button class="btn btn-sm btn-primary" type="submit" onclick="return confirm('Tandai Selesai?')">Selesai Ber-main</button>
                           </form>
+                        @else
+                          -
                         @endif
                       </div>
                     </td>
@@ -159,4 +170,79 @@
       </section>
     </div>
   </main>
+
+  <div class="modal fade" id="modalBuktiPembayaran" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Bukti Pembayaran</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+          <img id="buktiPembayaranImg" src="" alt="Bukti Pembayaran" class="img-fluid rounded d-none" />
+          <iframe id="buktiPembayaranFrame" class="w-100 d-none" style="height: 70vh" title="Bukti Pembayaran"></iframe>
+          <div id="buktiPembayaranFallback" class="text-secondary small mt-3 d-none">
+            File tidak dapat ditampilkan. Silakan unduh:
+            <a id="buktiPembayaranLink" href="#" target="_blank" rel="noopener">Buka Bukti</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  @push('scripts')
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const modal = document.getElementById('modalBuktiPembayaran');
+        const img = document.getElementById('buktiPembayaranImg');
+        const frame = document.getElementById('buktiPembayaranFrame');
+        const fallback = document.getElementById('buktiPembayaranFallback');
+        const link = document.getElementById('buktiPembayaranLink');
+
+        if (!modal || !img) {
+          return;
+        }
+
+        modal.addEventListener('show.bs.modal', (event) => {
+          const button = event.relatedTarget;
+          const fileUrl = button?.getAttribute('data-bs-file') || '';
+          const isPdf = fileUrl.toLowerCase().endsWith('.pdf');
+
+          img.classList.add('d-none');
+          frame.classList.add('d-none');
+          fallback.classList.add('d-none');
+
+          if (!fileUrl) {
+            fallback.classList.remove('d-none');
+            link.setAttribute('href', '#');
+            return;
+          }
+
+          link.setAttribute('href', fileUrl);
+
+          if (isPdf) {
+            frame.src = fileUrl;
+            frame.classList.remove('d-none');
+            return;
+          }
+
+          img.onerror = () => {
+            img.classList.add('d-none');
+            fallback.classList.remove('d-none');
+          };
+          img.src = fileUrl;
+          img.classList.remove('d-none');
+        });
+
+        modal.addEventListener('hidden.bs.modal', () => {
+          img.src = '';
+          frame.src = '';
+          img.onerror = null;
+          img.classList.add('d-none');
+          frame.classList.add('d-none');
+          fallback.classList.add('d-none');
+        });
+      });
+    </script>
+  @endpush
 @endsection

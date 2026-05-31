@@ -67,6 +67,41 @@
                         setMaxStep(3);
                         setStep(3);
                     }
+
+                    const countdownBox = document.getElementById('paymentCountdown');
+                    if (countdownBox) {
+                        const expiry = countdownBox.getAttribute('data-expiry');
+                        const timerText = countdownBox.querySelector('[data-countdown-text]');
+
+                        if (expiry && timerText) {
+                            const expiryTime = new Date(expiry).getTime();
+
+                            const updateCountdown = () => {
+                                const now = Date.now();
+                                const diff = expiryTime - now;
+
+                                if (diff <= 0) {
+                                    timerText.textContent = 'Waktu pembayaran sudah habis.';
+                                    return false;
+                                }
+
+                                const totalSeconds = Math.floor(diff / 1000);
+                                const hours = Math.floor(totalSeconds / 3600);
+                                const minutes = Math.floor((totalSeconds % 3600) / 60);
+                                const seconds = totalSeconds % 60;
+
+                                timerText.textContent = `Sisa waktu: ${hours}j ${minutes}m ${seconds}d`;
+                                return true;
+                            };
+
+                            updateCountdown();
+                            const timerId = setInterval(() => {
+                                if (!updateCountdown()) {
+                                    clearInterval(timerId);
+                                }
+                            }, 1000);
+                        }
+                    }
                 }
                 
                 // Interaksi tombol bayar di tabel riwayat
@@ -153,6 +188,8 @@
                             4. Status Booking
                         </button>
                     </div>
+
+            
 
                     <div class="row g-4 booking-layout" id="bookingFlow">
                         <div class="col-lg-12">
@@ -272,9 +309,9 @@
                                 <div class="booking-input-group">
                                     <h3 class="h5 mb-2">Status Booking</h3>
                                     <p class="mb-3 text-dark-70">
-                                        <span class="badge text-bg-success" id="bookingStatusBadge">Aktif</span>
+                                        <span class="badge text-bg-warning" id="bookingStatusBadge">Pending</span>
                                     </p>
-                                    <p class="mb-4" id="bookingStatusText">Pembayaran berhasil. Booking kamu aktif.</p>
+                                    <p class="mb-4" id="bookingStatusText">Pembayaran diterima. Menunggu konfirmasi admin.</p>
                                     <button class="btn btn-accent" id="btnResetBooking" type="button">
                                         Buat Reservasi Baru
                                     </button>
@@ -305,6 +342,15 @@
                                         Total Pembayaran
                                         <strong>Rp120.000</strong>
                                     </div>
+                                    @if($unpaidReservasi && $unpaidReservasi->status === 'menunggu' && empty($unpaidReservasi->bukti_pembayaran))
+                                        <div
+                                            class="alert alert-danger py-2 small"
+                                            id="paymentCountdown"
+                                            data-expiry="{{ \Carbon\Carbon::parse($unpaidReservasi->created_at)->addHour()->toIso8601String() }}">
+                                            <div class="fw-semibold">Batas Upload Bukti Pembayaran</div>
+                                            <div data-countdown-text>Sisa waktu: -</div>
+                                        </div>
+                                    @endif
                                     <div class="mb-3">
                                         <label class="form-label" for="metodeBayar">Metode Pembayaran</label>
                                         <select class="form-select" id="metodeBayar" name="metode_pembayaran">
@@ -386,8 +432,10 @@
                                         <td>
                                             @if ($item->status === 'selesai')
                                                 <span class="badge text-bg-primary">Selesai</span>
-                                            @elseif ($item->status === 'dibayar')
+                                            @elseif (in_array($item->status, ['disetujui', 'dibayar']))
                                                 <span class="badge text-bg-success">Aktif</span>
+                                            @elseif ($item->status === 'pending')
+                                                <span class="badge text-bg-info">Pending</span>
                                             @elseif ($item->status === 'dibatalkan')
                                                 <span class="badge text-bg-danger">Dibatalkan</span>
                                             @else
@@ -737,8 +785,11 @@
             });
 
             // --- 4. Cek Ketersediaan Jadwal AJAX ---
-            document.getElementById('tanggalMain')?.addEventListener('change', async function() {
-                const tanggalPilih = this.value;
+            const tanggalMainInput = document.getElementById('tanggalMain');
+            const jamSelesaiSelect = document.getElementById('jamSelesaiMain');
+
+            async function handleTanggalChange() {
+                const tanggalPilih = tanggalMainInput?.value;
                 const jamMainSelect = document.getElementById('jamMain');
                 const errMessage = document.getElementById('tanggalError');
                 const successMessage = document.getElementById('tanggalSuccess');
@@ -746,10 +797,32 @@
                 // Reset state
                 jamMainSelect.innerHTML = '<option value="">Memuat...</option>';
                 jamMainSelect.disabled = true;
+                if (jamSelesaiSelect) {
+                    jamSelesaiSelect.innerHTML = '<option value="">Pilih jam mulai terlebih dahulu...</option>';
+                    jamSelesaiSelect.disabled = true;
+                }
                 errMessage.classList.add('d-none');
                 successMessage.classList.add('d-none');
 
-                if(!tanggalPilih) return;
+                if (!tanggalPilih) return;
+
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const pickedDate = new Date(tanggalPilih);
+
+                if (pickedDate < today) {
+                    errMessage.textContent = 'Jangan pilih hari yang sudah berlalu.';
+                    errMessage.classList.remove('d-none');
+                    jamMainSelect.innerHTML = '<option value="">Tanggal sudah berlalu</option>';
+                    jamMainSelect.disabled = true;
+                    if (jamSelesaiSelect) {
+                        jamSelesaiSelect.innerHTML = '<option value="">Tanggal sudah berlalu</option>';
+                        jamSelesaiSelect.disabled = true;
+                    }
+                    return;
+                }
+
+                errMessage.textContent = 'Maaf, jadwal di tanggal ini tidak tersedia / penuh.';
 
                 let jadwalOperasional = [];
 
@@ -813,7 +886,9 @@
                 
                 // Menyimpan data operasional agar bisa diakses oleh change listener jamMain
                 jamMainSelect.dataset.operasional = JSON.stringify(jadwalOperasional);
-            });
+            }
+
+            tanggalMainInput?.addEventListener('change', handleTanggalChange);
 
             // Update Jam Selesai saat Jam Mulai dipilih
             document.getElementById('jamMain')?.addEventListener('change', function() {
@@ -866,6 +941,10 @@
             document.getElementById('jamSelesaiMain')?.addEventListener('change', function() {
                 // Update hal lain jika diperlukan
             });
+
+            if (tanggalMainInput?.value) {
+                handleTanggalChange();
+            }
         });
     </script>
 @endpush

@@ -14,9 +14,9 @@ class DashboardController extends Controller
     {
         $today = Carbon::today();
 
-        $totalPendapatanBulanIni = Reservasi::where('status', 'dibayar')
-            ->whereMonth('created_at', $today->month)
-            ->whereYear('created_at', $today->year)
+        $totalPendapatanBulanIni = Reservasi::whereIn('status', ['disetujui', 'selesai', 'dibayar'])
+            ->whereMonth('tanggal', $today->month)
+            ->whereYear('tanggal', $today->year)
             ->sum('total_harga');
 
         $totalReservasiHariIni = Reservasi::whereDate('tanggal', $today)

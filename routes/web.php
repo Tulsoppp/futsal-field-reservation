@@ -52,7 +52,7 @@ Route::middleware('auth')->group(function () {
         });
 
         // Halaman Admin Lainnya
-        Route::view('/laporan', 'pages.admin.laporan')->name('admin.laporan');
+        Route::get('/laporan', [\App\Http\Controllers\Admin\LaporanController::class, 'index'])->name('admin.laporan');
 
         Route::controller(\App\Http\Controllers\Admin\MembershipController::class)->group(function () {
             Route::get('/membership', 'index')->name('admin.membership');
@@ -61,7 +61,13 @@ Route::middleware('auth')->group(function () {
         });
 
         Route::view('/membership/form', 'pages.admin.membership-form')->name('admin.membership.form');
-        Route::view('/pelanggan', 'pages.admin.pelanggan')->name('admin.pelanggan');
-        Route::view('/pelanggan/form', 'pages.admin.pelanggan-form')->name('admin.pelanggan.form');
+        Route::controller(\App\Http\Controllers\Admin\PelangganController::class)->group(function () {
+            Route::get('/pelanggan', 'index')->name('admin.pelanggan');
+            Route::get('/pelanggan/form', 'create')->name('admin.pelanggan.form');
+            Route::post('/pelanggan', 'store')->name('admin.pelanggan.store');
+            Route::get('/pelanggan/{id}/edit', 'edit')->name('admin.pelanggan.edit');
+            Route::put('/pelanggan/{id}', 'update')->name('admin.pelanggan.update');
+            Route::delete('/pelanggan/{id}', 'destroy')->name('admin.pelanggan.destroy');
+        });
     });
 });
