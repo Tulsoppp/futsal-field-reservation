@@ -11,7 +11,9 @@ class MembershipController extends Controller
 {
     public function index()
     {
-        $memberships = User::whereNotNull('membership_status')->latest()->get();
+        $memberships = User::whereIn('membership_status', ['pending', 'active'])
+            ->latest()
+            ->get();
         return view('pages.admin.membership', compact('memberships'));
     }
 

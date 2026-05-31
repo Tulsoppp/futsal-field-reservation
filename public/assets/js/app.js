@@ -222,8 +222,11 @@ btnBayar?.addEventListener("click", () => {
         return;
     }
 
-    setSummary("Pembayaran berhasil");
-    setStatus("Pembayaran berhasil. Booking kamu aktif.", "text-bg-success");
+    setSummary("Menunggu verifikasi admin");
+    setStatus(
+        "Pembayaran diterima. Menunggu konfirmasi admin.",
+        "text-bg-warning",
+    );
     setMaxStep(4);
     setStep(4);
 });

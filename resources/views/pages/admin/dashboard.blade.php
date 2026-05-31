@@ -67,9 +67,13 @@
                   <td>Rp{{ number_format($activity->total_harga, 0, ',', '.') }}</td>
                   <td>
                     @if ($activity->status === 'menunggu')
-                      <span class="badge bg-warning text-dark">Menunggu</span>
-                    @elseif ($activity->status === 'dibayar')
-                      <span class="badge bg-success">Berhasil/Dibayar</span>
+                      <span class="badge bg-warning text-dark">Menunggu Pembayaran</span>
+                    @elseif ($activity->status === 'pending')
+                      <span class="badge bg-info text-dark">Menunggu Konfirmasi</span>
+                    @elseif (in_array($activity->status, ['disetujui', 'dibayar']))
+                      <span class="badge bg-success">Disetujui</span>
+                    @elseif ($activity->status === 'selesai')
+                      <span class="badge bg-primary">Selesai</span>
                     @elseif ($activity->status === 'dibatalkan')
                       <span class="badge bg-danger">Dibatalkan</span>
                     @else

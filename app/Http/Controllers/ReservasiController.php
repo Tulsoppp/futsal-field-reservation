@@ -144,7 +144,7 @@ class ReservasiController extends Controller
 
         $reservasi->metode_pembayaran = $validatedData['metode_pembayaran'];
         $reservasi->bukti_pembayaran = $request->file('bukti_pembayaran')->store('bukti_pembayaran', 'public');
-        $reservasi->status = 'dibayar';
+        $reservasi->status = 'pending';
         $reservasi->save();
 
         return response()->json([
@@ -174,7 +174,7 @@ class ReservasiController extends Controller
     {
         $reservasi = Reservasi::with('user')->where('id', $id)
             ->where('id_user', Auth::id())
-            ->whereIn('status', ['dibayar', 'selesai'])
+            ->whereIn('status', ['disetujui', 'dibayar', 'selesai'])
             ->firstOrFail();
 
         return view('pages.user.cetak-tiket', compact('reservasi'));
