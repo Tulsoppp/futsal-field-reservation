@@ -13,7 +13,7 @@ class MembershipController extends Controller
     {
         $memberships = User::whereIn('membership_status', ['pending', 'active'])
             ->latest()
-            ->get();
+            ->paginate(10);
         return view('pages.admin.membership', compact('memberships'));
     }
 

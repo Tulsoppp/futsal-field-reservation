@@ -61,71 +61,74 @@
               </tr>
             </thead>
             <tbody id="reservasiTableBody">
-              @forelse($reservasi ?? [] as $r)
-                @if(in_array($r->status, ['menunggu', 'pending', 'disetujui', 'dibayar']))
-                  <tr>
-                    <td>#RSV-{{ str_pad($r->id, 4, '0', STR_PAD_LEFT) }}</td>
-                    <td>{{ $r->user->nama ?? 'Unknown' }}<br><small class="text-secondary">{{ $r->catatan }}</small></td>
-                    <td>
-                      {{ \Carbon\Carbon::parse($r->tanggal)->format('d M Y') }}<br>
-                      <span class="badge text-bg-secondary">Lapangan Utama</span>
-                    </td>
-                    <td>
-                      {{ \Carbon\Carbon::parse($r->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($r->jam_selesai)->format('H:i') }}
-                    </td>
-                    <td>
-                      Rp{{ number_format($r->total_harga, 0, ',', '.') }}<br>
-                      @if($r->bukti_pembayaran)
-                        <button
-                          class="badge text-bg-info text-decoration-none border-0"
-                          type="button"
-                          data-bs-toggle="modal"
-                          data-bs-target="#modalBuktiPembayaran"
-                          data-bs-file="{{ asset('storage/' . $r->bukti_pembayaran) }}">
-                          Lihat Bukti
-                        </button>
-                      @else
-                        <span class="badge text-bg-light">Belum Upload</span>
-                      @endif
-                    </td>
-                    <td>
-                      @if($r->status === 'menunggu')
-                        <span class="badge text-bg-warning">Menunggu Pembayaran</span>
-                      @elseif($r->status === 'pending')
-                        <span class="badge text-bg-info">Menunggu Konfirmasi</span>
+              @forelse($validasi as $r)
+                <tr>
+                  <td>#RSV-{{ str_pad($r->id, 4, '0', STR_PAD_LEFT) }}</td>
+                  <td>{{ $r->user->nama ?? 'Unknown' }}<br><small class="text-secondary">{{ $r->catatan }}</small></td>
+                  <td>
+                    {{ \Carbon\Carbon::parse($r->tanggal)->format('d M Y') }}<br>
+                    <span class="badge text-bg-secondary">Lapangan Utama</span>
+                  </td>
+                  <td>
+                    {{ \Carbon\Carbon::parse($r->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($r->jam_selesai)->format('H:i') }}
+                  </td>
+                  <td>
+                    Rp{{ number_format($r->total_harga, 0, ',', '.') }}<br>
+                    @if($r->bukti_pembayaran)
+                      <button
+                        class="badge text-bg-info text-decoration-none border-0"
+                        type="button"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modalBuktiPembayaran"
+                        data-bs-file="{{ asset('storage/' . $r->bukti_pembayaran) }}">
+                        Lihat Bukti
+                      </button>
+                    @else
+                      <span class="badge text-bg-light">Belum Upload</span>
+                    @endif
+                  </td>
+                  <td>
+                    @if($r->status === 'menunggu')
+                      <span class="badge text-bg-warning">Menunggu Pembayaran</span>
+                    @elseif($r->status === 'pending')
+                      <span class="badge text-bg-info">Menunggu Konfirmasi</span>
+                    @elseif(in_array($r->status, ['disetujui', 'dibayar']))
+                       <span class="badge text-bg-success">Disetujui</span>
+                    @endif
+                  </td>
+                  <td>
+                    <div class="d-flex gap-1">
+                      @if($r->status === 'pending')
+                        <form action="{{ route('admin.reservasi.terima', $r->id) }}" method="POST">
+                          @csrf
+                          <button class="btn btn-sm btn-success" type="submit">Terima</button>
+                        </form>
+                        <form action="{{ route('admin.reservasi.tolak', $r->id) }}" method="POST">
+                          @csrf
+                          <button class="btn btn-sm btn-danger" type="submit" onclick="return confirm('Tolak & Batalkan?')">Tolak</button>
+                        </form>
                       @elseif(in_array($r->status, ['disetujui', 'dibayar']))
-                         <span class="badge text-bg-success">Disetujui</span>
+                        <form action="{{ route('admin.reservasi.selesai', $r->id) }}" method="POST">
+                          @csrf
+                          <button class="btn btn-sm btn-primary" type="submit" onclick="return confirm('Tandai Selesai?')">Selesai Ber-main</button>
+                        </form>
+                      @else
+                        -
                       @endif
-                    </td>
-                    <td>
-                      <div class="d-flex gap-1">
-                        @if($r->status === 'pending')
-                          <form action="{{ route('admin.reservasi.terima', $r->id) }}" method="POST">
-                            @csrf
-                            <button class="btn btn-sm btn-success" type="submit">Terima</button>
-                          </form>
-                          <form action="{{ route('admin.reservasi.tolak', $r->id) }}" method="POST">
-                            @csrf
-                            <button class="btn btn-sm btn-danger" type="submit" onclick="return confirm('Tolak & Batalkan?')">Tolak</button>
-                          </form>
-                        @elseif(in_array($r->status, ['disetujui', 'dibayar']))
-                          <form action="{{ route('admin.reservasi.selesai', $r->id) }}" method="POST">
-                            @csrf
-                            <button class="btn btn-sm btn-primary" type="submit" onclick="return confirm('Tandai Selesai?')">Selesai Ber-main</button>
-                          </form>
-                        @else
-                          -
-                        @endif
-                      </div>
-                    </td>
-                  </tr>
-                @endif
+                    </div>
+                  </td>
+                </tr>
               @empty
-                <tr><td colspan="7" class="text-center text-secondary">Belum ada data butuh divalidasi.</td></tr>
+                <tr><td colspan="7" class="text-center text-secondary py-4">Tidak ada data yang tersedia.</td></tr>
               @endforelse
             </tbody>
           </table>
         </div>
+        @if($validasi->hasPages())
+          <div class="d-flex justify-content-center mt-3">
+            {{ $validasi->links() }}
+          </div>
+        @endif
       </section>
 
       <section class="panel-box">
@@ -146,27 +149,32 @@
               </tr>
             </thead>
             <tbody id="riwayatSewaBody">
-              @foreach($reservasi ?? [] as $rev)
-                @if(in_array($rev->status, ['selesai', 'dibatalkan']))
-                  <tr>
-                    <td>#RSV-{{ str_pad($rev->id, 4, '0', STR_PAD_LEFT) }}</td>
-                    <td>{{ \Carbon\Carbon::parse($rev->tanggal)->format('d M Y') }}</td>
-                    <td>{{ $rev->user->nama ?? '-' }}</td>
-                    <td>Lapangan Utama</td>
-                    <td>Rp{{ number_format($rev->total_harga, 0, ',', '.') }}</td>
-                    <td>
-                      @if($rev->status === 'selesai')
-                         <span class="badge text-bg-primary">Selesai</span>
-                      @else
-                         <span class="badge text-bg-danger">Batal</span>
-                      @endif
-                    </td>
-                  </tr>
-                @endif
-              @endforeach
+              @forelse($riwayat as $rev)
+                <tr>
+                  <td>#RSV-{{ str_pad($rev->id, 4, '0', STR_PAD_LEFT) }}</td>
+                  <td>{{ \Carbon\Carbon::parse($rev->tanggal)->format('d M Y') }}</td>
+                  <td>{{ $rev->user->nama ?? '-' }}</td>
+                  <td>Lapangan Utama</td>
+                  <td>Rp{{ number_format($rev->total_harga, 0, ',', '.') }}</td>
+                  <td>
+                    @if($rev->status === 'selesai')
+                       <span class="badge text-bg-primary">Selesai</span>
+                    @else
+                       <span class="badge text-bg-danger">Batal</span>
+                    @endif
+                  </td>
+                </tr>
+              @empty
+                <tr><td colspan="6" class="text-center text-secondary py-4">Tidak ada data yang tersedia.</td></tr>
+              @endforelse
             </tbody>
           </table>
         </div>
+        @if($riwayat->hasPages())
+          <div class="d-flex justify-content-center mt-3">
+            {{ $riwayat->links() }}
+          </div>
+        @endif
       </section>
     </div>
   </main>

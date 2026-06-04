@@ -53,6 +53,7 @@ Route::middleware('auth')->group(function () {
 
         // Halaman Admin Lainnya
         Route::get('/laporan', [\App\Http\Controllers\Admin\LaporanController::class, 'index'])->name('admin.laporan');
+        Route::get('/laporan/export', [\App\Http\Controllers\Admin\LaporanController::class, 'exportExcel'])->name('admin.laporan.export');
 
         Route::controller(\App\Http\Controllers\Admin\MembershipController::class)->group(function () {
             Route::get('/membership', 'index')->name('admin.membership');

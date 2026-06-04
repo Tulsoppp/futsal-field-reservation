@@ -41,26 +41,51 @@
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
           <div>
             <h2 class="h5 mb-1">Filter Laporan</h2>
-            <p class="text-secondary small mb-0">Pilih bulan untuk melihat ringkasan dan detail.</p>
+            <p class="text-secondary small mb-0">Gunakan filter untuk melihat data spesifik.</p>
           </div>
-          <form class="d-flex align-items-center gap-2" method="GET">
-            <label class="small text-secondary" for="filterBulan">Bulan</label>
+          <a href="{{ route('admin.laporan.export', request()->query()) }}" class="btn btn-sm btn-success">
+            <i class="bi bi-file-earmark-spreadsheet me-1"></i>Export Excel (CSV)
+          </a>
+        </div>
+        <form class="row g-2 align-items-end" method="GET" id="filterForm">
+          <div class="col-md-3 col-6">
+            <label class="form-label small text-secondary" for="filterBulan">Bulan</label>
             <select class="form-select form-select-sm" id="filterBulan" name="bulan" onchange="this.form.submit()">
               <option value="">Semua Bulan</option>
               @foreach(($availableMonths ?? []) as $bulan)
                 @php
                   $label = \Carbon\Carbon::createFromFormat('Y-m', $bulan)->translatedFormat('F Y');
                 @endphp
-                <option value="{{ $bulan }}" {{ $bulanFilter === $bulan ? 'selected' : '' }}>{{ $label }}</option>
+                <option value="{{ $bulan }}" {{ ($bulanFilter ?? '') === $bulan ? 'selected' : '' }}>{{ $label }}</option>
               @endforeach
             </select>
-          </form>
-        </div>
-        <div class="d-flex flex-wrap gap-2">
-          <span class="badge text-bg-dark">Filter: {{ $filterLabel ?? 'Semua Bulan' }}</span>
-          <span class="badge text-bg-success">Pendapatan: Rp{{ number_format($pendapatanFilter ?? 0, 0, ',', '.') }}</span>
-          <span class="badge text-bg-primary">Transaksi: {{ $transaksiFilter ?? 0 }}</span>
-          <span class="badge text-bg-danger">Batal: {{ $batalFilter ?? 0 }}</span>
+          </div>
+          <div class="col-md-2 col-6">
+            <label class="form-label small text-secondary" for="filterStatus">Status</label>
+            <select class="form-select form-select-sm" id="filterStatus" name="status" onchange="this.form.submit()">
+              <option value="">Semua Status</option>
+              <option value="disetujui" {{ ($statusFilter ?? '') === 'disetujui' ? 'selected' : '' }}>Disetujui</option>
+              <option value="selesai" {{ ($statusFilter ?? '') === 'selesai' ? 'selected' : '' }}>Selesai</option>
+              <option value="dibatalkan" {{ ($statusFilter ?? '') === 'dibatalkan' ? 'selected' : '' }}>Dibatalkan</option>
+            </select>
+          </div>
+          <div class="col-md-3 col-6">
+            <label class="form-label small text-secondary" for="filterDari">Tanggal Dari</label>
+            <input class="form-control form-control-sm" type="date" id="filterDari" name="tanggal_dari" value="{{ $tanggalDari ?? '' }}" onchange="this.form.submit()">
+          </div>
+          <div class="col-md-3 col-6">
+            <label class="form-label small text-secondary" for="filterSampai">Tanggal Sampai</label>
+            <input class="form-control form-control-sm" type="date" id="filterSampai" name="tanggal_sampai" value="{{ $tanggalSampai ?? '' }}" onchange="this.form.submit()">
+          </div>
+          <div class="col-md-1 col-12">
+            <a href="{{ route('admin.laporan') }}" class="btn btn-sm btn-outline-dark w-100" title="Reset Filter">Reset</a>
+          </div>
+        </form>
+        <div class="d-flex flex-wrap gap-2 mt-3">
+          <span class="badge text-bg-dark">Filter: {{ $filterLabel ?? 'Semua Data' }}</span>
+          <span class="badge text-bg-success">Pendapatan: Rp{{ number_format($totalPendapatan ?? 0, 0, ',', '.') }}</span>
+          <span class="badge text-bg-primary">Transaksi: {{ $totalTransaksi ?? 0 }}</span>
+          <span class="badge text-bg-danger">Batal: {{ $totalBatal ?? 0 }}</span>
         </div>
       </section>
 
@@ -78,6 +103,7 @@
                 <th>Tim</th>
                 <th>Lapangan</th>
                 <th>Durasi</th>
+                <th>Total Bayar</th>
                 <th>Status</th>
               </tr>
             </thead>
@@ -89,6 +115,7 @@
                   <td>{{ $row->user->nama ?? '-' }}</td>
                   <td>Lapangan Utama</td>
                   <td>{{ \Carbon\Carbon::parse($row->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($row->jam_selesai)->format('H:i') }}</td>
+                  <td>Rp{{ number_format($row->total_harga, 0, ',', '.') }}</td>
                   <td>
                     @if(in_array($row->status, ['disetujui', 'dibayar']))
                       <span class="badge text-bg-success">Disetujui</span>
@@ -103,12 +130,17 @@
                 </tr>
               @empty
                 <tr>
-                  <td colspan="6" class="text-center text-secondary">Belum ada data laporan.</td>
+                  <td colspan="7" class="text-center text-secondary py-4">Tidak ada data yang tersedia.</td>
                 </tr>
               @endforelse
             </tbody>
           </table>
         </div>
+        @if($laporanSewa->hasPages())
+          <div class="d-flex justify-content-center mt-3">
+            {{ $laporanSewa->links() }}
+          </div>
+        @endif
       </section>
 
       <section class="panel-box">
@@ -136,7 +168,7 @@
                 </tr>
               @empty
                 <tr>
-                  <td colspan="4" class="text-center text-secondary">Belum ada ringkasan bulanan.</td>
+                  <td colspan="4" class="text-center text-secondary py-4">Tidak ada data yang tersedia.</td>
                 </tr>
               @endforelse
             </tbody>

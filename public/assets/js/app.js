@@ -275,18 +275,4 @@ stepItems.forEach((item) => {
     });
 });
 
-btnDaftarMembership?.addEventListener("click", () => {
-    if (!namaPIC?.value.trim() || !kontakPIC?.value.trim()) {
-        alert("Lengkapi nama PIC dan kontak PIC terlebih dahulu.");
-        return;
-    }
 
-    if (!buktiMembership?.files?.length) {
-        alert("Silakan upload bukti pembayaran membership terlebih dahulu.");
-        return;
-    }
-
-    alert(
-        "Pendaftaran membership berhasil dikirim. Menunggu verifikasi admin.",
-    );
-});

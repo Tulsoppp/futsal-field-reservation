@@ -10,17 +10,40 @@ class ReservasiController extends Controller
 {
     public function index()
     {
-        // Ambil semua data reservasi beserta user
-        $reservasi = Reservasi::with('user')->latest()->get();
+        // Auto-selesaikan reservasi yang waktu mainnya sudah lewat
+        // (tanggal + jam_selesai < sekarang) dan statusnya masih disetujui/dibayar
+        $now = now();
+        Reservasi::whereIn('status', ['disetujui', 'dibayar'])
+            ->where(function ($query) use ($now) {
+                $query->where('tanggal', '<', $now->toDateString())
+                    ->orWhere(function ($q) use ($now) {
+                        $q->where('tanggal', '=', $now->toDateString())
+                          ->where('jam_selesai', '<=', $now->format('H:i:s'));
+                    });
+            })
+            ->update(['status' => 'selesai']);
+
+        // Query terpisah untuk tabel Validasi (status aktif)
+        $validasi = Reservasi::with('user')
+            ->whereIn('status', ['menunggu', 'pending', 'disetujui', 'dibayar'])
+            ->latest()
+            ->paginate(10, ['*'], 'validasi_page');
+
+        // Query terpisah untuk tabel Riwayat (status selesai/batal)
+        $riwayat = Reservasi::with('user')
+            ->whereIn('status', ['selesai', 'dibatalkan'])
+            ->latest()
+            ->paginate(10, ['*'], 'riwayat_page');
 
         // Hitung status untuk dashboard / card indikator
-        $countMenungguBayar = $reservasi->where('status', 'pending')->count();
-        $countMenungguBatal = 0; // opsional, jika kamu mau deteksi cancel request (misalkan ada status 'menunggu_batal')
-        $countDisetujui = $reservasi->whereIn('status', ['disetujui', 'dibayar'])->count();
-        $countSelesai = $reservasi->where('status', 'selesai')->count();
+        $countMenungguBayar = Reservasi::where('status', 'pending')->count();
+        $countMenungguBatal = Reservasi::where('status', 'dibatalkan')->count();
+        $countDisetujui = Reservasi::whereIn('status', ['disetujui', 'dibayar'])->count();
+        $countSelesai = Reservasi::where('status', 'selesai')->count();
 
         return view('pages.admin.reservasi', compact(
-            'reservasi',
+            'validasi',
+            'riwayat',
             'countMenungguBayar',
             'countMenungguBatal',
             'countDisetujui',
