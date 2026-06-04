@@ -473,7 +473,7 @@
                     </div>
                     <div class="alert alert-info border-0 shadow-sm rounded">
                         <strong>Mengapa Member?</strong> Jadilah member dan nikmati harga lebih murah di reservasi kamu berikutnya, prioritas booking, serta beragam promo menarik lainnya. <br>
-                        <em>Catatan:</em> Karena kamu mendaftar dari halaman pemesanan, silakan selesaikan pembayaran lapangan sekaligus pembayaran member di sini (upload bukti pada masing-masing form).
+                        <em>Catatan:</em> Jika kamu mendaftar member sekarang, pengajuanmu akan diproses oleh admin (Pending). Proses reservasi saat ini dibatalkan sementara. Silakan buat reservasi kembali setelah status member kamu Aktif untuk mendapatkan harga spesial.
                     </div>
                     <p class="text-dark-70 mb-4">
                         Isi form di bawah ini lalu lakukan pembayaran via QRIS untuk mengaktifkan membership.
@@ -603,11 +603,17 @@
 
             document.getElementById('btnTerimaMember')?.addEventListener('click', () => {
                 if(tawaranModal) tawaranModal.hide();
-                processBooking(true);
+                
+                // Tampilkan form membership tanpa membuat reservasi
+                const mForm = document.getElementById('membership-form');
+                mForm.classList.remove('d-none');
+                mForm.scrollIntoView({ behavior: 'smooth' });
+                
+                // Nonaktifkan tombol booking
+                if(btnKonfirmasi) btnKonfirmasi.disabled = true;
             });
 
-            async function processBooking(wantsToJoinMember) {
-                // ... same logic
+            async function processBooking() {
                 const formData = new FormData(bookingForm);
                 formData.append('metode_pembayaran', 'Belum bayar');
 
@@ -639,11 +645,7 @@
                     setMaxStep(3);
                     setStep(3);
 
-                    if (wantsToJoinMember) {
-                        const mForm = document.getElementById('membership-form');
-                        mForm.classList.remove('d-none');
-                        mForm.scrollIntoView({ behavior: 'smooth' });
-                    }
+                    setStep(3);
 
                 } catch (err) {
                     console.error(err);
@@ -704,7 +706,7 @@
                         f.reset();
                         document.getElementById('membership-form').classList.add('d-none');
                         setTimeout(() => {
-                            window.location.reload(); 
+                            window.location.href = "{{ route('profile') }}"; 
                         }, 2000);
                     }
                 } catch(e) {
@@ -853,6 +855,9 @@
                             jamMainSelect.appendChild(opt);
                         });
                         
+                        // Simpan data operasional SEBELUM auto-select agar updateJamSelesai() bisa akses
+                        jamMainSelect.dataset.operasional = JSON.stringify(jadwalOperasional);
+
                         if (adaTersedia) {
                             successMessage.classList.remove('d-none');
                             jamMainSelect.disabled = false;
@@ -865,8 +870,8 @@
                                 }
                             }
                             
-                            // Trigger perubahan jam untuk mengupdate jam selesai
-                            jamMainSelect.dispatchEvent(new Event('change'));
+                            // Langsung panggil fungsi update jam selesai (lebih reliable daripada dispatchEvent)
+                            updateJamSelesai();
                         } else {
                             errMessage.classList.remove('d-none');
                             jamMainSelect.innerHTML = '<option value="">Semua jadwal penuh</option>';
@@ -884,15 +889,15 @@
                     jamMainSelect.innerHTML = '<option value="">Gagal memuat jadwal</option>';
                 }
                 
-                // Menyimpan data operasional agar bisa diakses oleh change listener jamMain
-                jamMainSelect.dataset.operasional = JSON.stringify(jadwalOperasional);
+                // dataset.operasional sudah di-set sebelum auto-select di atas
             }
 
             tanggalMainInput?.addEventListener('change', handleTanggalChange);
 
-            // Update Jam Selesai saat Jam Mulai dipilih
-            document.getElementById('jamMain')?.addEventListener('change', function() {
-                const jamMainVal = this.value;
+            // Fungsi untuk update opsi Jam Selesai berdasarkan Jam Mulai yang dipilih
+            function updateJamSelesai() {
+                const jamMainSelect = document.getElementById('jamMain');
+                const jamMainVal = jamMainSelect?.value;
                 const jamSelesaiSelect = document.getElementById('jamSelesaiMain');
                 
                 jamSelesaiSelect.innerHTML = '';
@@ -900,7 +905,7 @@
                 
                 if (!jamMainVal) return;
                 
-                const jadwalOperasional = JSON.parse(this.dataset.operasional || '[]');
+                const jadwalOperasional = JSON.parse(jamMainSelect.dataset.operasional || '[]');
                 
                 // Cari index jam mulai
                 const startIndex = jadwalOperasional.findIndex(j => j.jam === jamMainVal);
@@ -936,7 +941,10 @@
                 }
 
                 jamSelesaiSelect.dispatchEvent(new Event('change'));
-            });
+            }
+
+            // Update Jam Selesai saat Jam Mulai dipilih
+            document.getElementById('jamMain')?.addEventListener('change', updateJamSelesai);
             
             document.getElementById('jamSelesaiMain')?.addEventListener('change', function() {
                 // Update hal lain jika diperlukan

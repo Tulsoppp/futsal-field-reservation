@@ -60,12 +60,17 @@
                 </tr>
               @empty
                 <tr>
-                  <td colspan="6" class="text-center text-secondary">Belum ada data pelanggan.</td>
+                  <td colspan="6" class="text-center text-secondary py-4">Tidak ada data yang tersedia.</td>
                 </tr>
               @endforelse
             </tbody>
           </table>
         </div>
+        @if($pelanggan->hasPages())
+          <div class="d-flex justify-content-center mt-3">
+            {{ $pelanggan->links() }}
+          </div>
+        @endif
       </section>
     </div>
   </main>

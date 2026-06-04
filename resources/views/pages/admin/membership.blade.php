@@ -42,7 +42,9 @@
                   <td>{{ $m->nama }}<br><small class="text-secondary">{{ $m->no_hp }}</small></td>
                   <td><span class="badge text-bg-dark">{{ $m->membership_type }}</span></td>
                   <td>
-                    @if($m->membership_proof)
+                    @if($m->membership_proof === 'cash')
+                      <span class="badge text-bg-secondary">Cash</span>
+                    @elseif($m->membership_proof)
                       <button
                         class="badge bg-info text-decoration-none border-0"
                         type="button"
@@ -83,11 +85,16 @@
                   </td>
                 </tr>
               @empty
-                <tr><td colspan="6" class="text-center">Belum ada data pengajuan membership.</td></tr>
+                <tr><td colspan="6" class="text-center text-secondary py-4">Tidak ada data yang tersedia.</td></tr>
               @endforelse
             </tbody>
           </table>
         </div>
+        @if($memberships->hasPages())
+          <div class="d-flex justify-content-center mt-3">
+            {{ $memberships->links() }}
+          </div>
+        @endif
       </section>
     </div>
   </main>

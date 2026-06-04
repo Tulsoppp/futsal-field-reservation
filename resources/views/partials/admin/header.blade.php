@@ -4,7 +4,7 @@
   $showWebsiteLink = $showWebsiteLink ?? false;
 @endphp
 
-<header class="admin-header border-bottom bg-white sticky-top">
+<header class="admin-header border-bottom bg-white sticky-top mt-2">
   <div class="container py-3">
     <div class="d-flex flex-wrap gap-3 justify-content-between align-items-center">
       <div>
