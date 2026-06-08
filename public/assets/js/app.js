@@ -12,7 +12,7 @@ const buktiMembership = document.getElementById("buktiMembership");
 const buktiMembershipInfo = document.getElementById("buktiMembershipInfo");
 const btnDaftarMembership = document.getElementById("btnDaftarMembership");
 const namaPIC = document.getElementById("namaPIC");
-const kontakPIC = document.getElementById("kontakPIC");
+const kontakPIC = document.getElementById("kontakbtnToConfirmPIC");
 const stepItems = document.querySelectorAll(".step-item[data-step]");
 const stepPanels = document.querySelectorAll(".step-panel[data-step]");
 const btnToConfirm = document.getElementById("btnToConfirm");
@@ -193,6 +193,8 @@ paketMember?.addEventListener("change", () => {
 
 buktiReservasi?.addEventListener("change", () => {
     tampilkanNamaFile(buktiReservasi, buktiReservasiInfo);
+    document.getElementById("buktiReservasiError").textContent = "";
+    document.getElementById("buktiReservasi").classList.remove("is-invalid");
 });
 
 buktiMembership?.addEventListener("change", () => {

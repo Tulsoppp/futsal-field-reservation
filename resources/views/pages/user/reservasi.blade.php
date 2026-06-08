@@ -370,6 +370,7 @@
                                         <small class="text-secondary d-block mt-2" id="buktiReservasiInfo">
                                             Belum ada file dipilih.
                                         </small>
+                                        <div class="invalid-feedback d-block" id="buktiReservasiError"></div>
                                     </div>
                                 </div>
                             </div>
@@ -749,9 +750,19 @@
 
                     const data = await res.json();
                     if (!res.ok) {
-                        alert(data.message || 'Gagal upload pembayaran.');
+                        const errContainer = document.getElementById('buktiReservasiError');
+                        if (data.errors && data.errors.bukti_pembayaran && errContainer) {
+                            errContainer.textContent = data.errors.bukti_pembayaran[0];
+                            document.getElementById('buktiReservasi').classList.add('is-invalid');
+                        } else {
+                            alert(data.message || 'Gagal upload pembayaran.');
+                        }
                         return;
                     }
+                    
+                    const errContainer = document.getElementById('buktiReservasiError');
+                    if (errContainer) errContainer.textContent = '';
+                    document.getElementById('buktiReservasi').classList.remove('is-invalid');
                     toastr.success(data.message);
                 } catch (err) {
                     console.error(err);
