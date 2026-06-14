@@ -123,7 +123,7 @@
             <article class="info-card h-100">
               <h3>Pembayaran Fleksibel</h3>
               <p>
-                Mendukung berbagai macam metode pembayaran mulai dari transfer bank lokal, Virtual Account, hingga e-Wallet dan QRIS.
+                Mendukung pembayaran dengan QRIS.
               </p>
             </article>
           </div>
