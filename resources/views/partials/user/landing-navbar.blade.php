@@ -17,7 +17,7 @@
         class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center gap-lg-2 landing-menu"
       >
         <li class="nav-item">
-          <a class="nav-link landing-link" href="#fitur">Fitur</a>
+          <a class="nav-link landing-link" href="#fitur">Fasilitas</a>
         </li>
         <li class="nav-item">
           <a class="nav-link landing-link" href="#harga">Jadwal & Harga</a>

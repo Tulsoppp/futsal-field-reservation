@@ -39,7 +39,7 @@
           <div class="row g-3 mt-4 stat-row">
             <div class="col-6 col-md-4">
               <div class="stat-card">
-                <h3>4</h3>
+                <h3>1</h3>
                 <p>Lapangan Indoor</p>
               </div>
             </div>
@@ -69,7 +69,7 @@
             <h2 class="h4 mb-3">Kenapa Pilih Jaya Futsal?</h2>
             <ul class="list-unstyled mb-0 d-grid gap-3">
               <li class="feature-chip">Tersedia jadwal per jam yang selalu update</li>
-              <li class="feature-chip">Pembayaran fleksibel: transfer, e-wallet, QRIS</li>
+              <li class="feature-chip">Pembayaran fleksibel: QRIS</li>
               <li class="feature-chip">Bisa batalkan reservasi sesuai kebijakan</li>
               <li class="feature-chip">Program membership untuk diskon rutin</li>
             </ul>
@@ -83,61 +83,55 @@
     <section id="fitur" class="py-5">
       <div class="container py-4">
         <div class="text-center mb-4">
-          <p class="section-kicker mb-2">Use Case User</p>
-          <h2 class="section-title">Alur Utama Pengguna</h2>
+          <p class="section-kicker mb-2">Keunggulan Kami</p>
+          <h2 class="section-title">Fasilitas & Pelayanan Terbaik</h2>
         </div>
         <div class="row g-4">
           <div class="col-md-6 col-xl-4">
             <article class="info-card h-100">
-              <h3>Register & Login</h3>
+              <h3>Rumput Sintetis Premium</h3>
               <p>
-                Pengguna membuat akun baru atau masuk ke sistem sebelum melakukan
-                reservasi lapangan.
+                Lapangan kami menggunakan rumput sintetis standar internasional yang aman, tidak licin, dan nyaman digunakan untuk pertandingan intens.
               </p>
             </article>
           </div>
           <div class="col-md-6 col-xl-4">
             <article class="info-card h-100">
-              <h3>Reservasi Lapangan</h3>
+              <h3>Fasilitas Lengkap</h3>
               <p>
-                Pilih tanggal, jam, dan lapangan yang tersedia berdasarkan jadwal
-                dan harga terkini.
+                Dilengkapi dengan ruang ganti pemain yang luas, toilet bersih, shower, mushola, serta area parkir yang aman untuk kendaraan Anda.
               </p>
             </article>
           </div>
           <div class="col-md-6 col-xl-4">
             <article class="info-card h-100">
-              <h3>Membayar Pesanan</h3>
+              <h3>Kantin & Ruang Tunggu</h3>
               <p>
-                Konfirmasi pesanan dan lanjutkan pembayaran dengan metode yang
-                disediakan sistem.
+                Tersedia kantin yang menyajikan berbagai pilihan minuman segar dan makanan ringan, serta area tribun penonton yang nyaman.
               </p>
             </article>
           </div>
           <div class="col-md-6 col-xl-4">
             <article class="info-card h-100">
-              <h3>Membatalkan Pesanan</h3>
+              <h3>Booking Online 24/7</h3>
               <p>
-                Reservasi yang sudah dibuat dapat dibatalkan dari dashboard dengan
-                status otomatis diperbarui.
+                Tidak perlu repot datang atau telepon. Cek jadwal kosong secara real-time dan booking lapangan langsung dari HP kamu kapan saja.
               </p>
             </article>
           </div>
           <div class="col-md-6 col-xl-4">
             <article class="info-card h-100">
-              <h3>Riwayat Booking</h3>
+              <h3>Pembayaran Fleksibel</h3>
               <p>
-                Semua transaksi terdahulu tersimpan agar pengguna mudah memantau
-                aktivitas pemesanan.
+                Mendukung berbagai macam metode pembayaran mulai dari transfer bank lokal, Virtual Account, hingga e-Wallet dan QRIS.
               </p>
             </article>
           </div>
           <div class="col-md-6 col-xl-4">
             <article class="info-card h-100">
-              <h3>Daftar Membership</h3>
+              <h3>Program Membership</h3>
               <p>
-                Pengguna dapat mendaftar paket membership untuk mendapat harga
-                lebih hemat.
+                Dapatkan harga spesial, diskon rutin, dan prioritas booking pada jam-jam prime time dengan mendaftar sebagai member Jaya Futsal.
               </p>
             </article>
           </div>
@@ -160,30 +154,21 @@
           <table class="table table-pricing align-middle">
             <thead>
               <tr>
-                <th>Waktu</th>
-                <th>Senin - Jumat</th>
-                <th>Sabtu - Minggu</th>
-                <th>Status Umum</th>
+                <th>Kategori Pengguna</th>
+                <th>Harga Sewa per Jam</th>
+                <th>Benefit Tambahan</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td>08:00 - 12:00</td>
-                <td>Rp120.000/jam</td>
-                <td>Rp150.000/jam</td>
-                <td><span class="badge text-bg-success">Banyak Tersedia</span></td>
+                <td><strong>Umum (Non-Member)</strong></td>
+                <td>Rp100.000 / jam</td>
+                <td>-</td>
               </tr>
               <tr>
-                <td>12:00 - 18:00</td>
-                <td>Rp150.000/jam</td>
-                <td>Rp180.000/jam</td>
-                <td><span class="badge text-bg-warning">Terbatas</span></td>
-              </tr>
-              <tr>
-                <td>18:00 - 23:00</td>
-                <td>Rp200.000/jam</td>
-                <td>Rp240.000/jam</td>
-                <td><span class="badge text-bg-danger">Cepat Habis</span></td>
+                <td><strong>Member Aktif</strong></td>
+                <td>Rp80.000 / jam</td>
+                <td>Harga lebih hemat (Diskon 20%)</td>
               </tr>
             </tbody>
           </table>
@@ -198,20 +183,20 @@
             <p class="section-kicker mb-2">Daftar Membership</p>
             <h2 class="section-title">Paket Member Jaya Futsal</h2>
             <p class="text-dark-70">
-              Member dapat prioritas pemesanan jam prime time, diskon hingga 15%,
-              dan akses promo bulanan.
+              Member mendapatkan harga khusus sewa lapangan (diskon 20% menjadi Rp80.000/jam),
+              dan akses berbagai keuntungan eksklusif lainnya.
             </p>
           </div>
           <div class="col-lg-5">
             <div class="membership-card">
-              <h3 class="h5">Member Pro Team</h3>
+              <h3 class="h5">Member Basic</h3>
               <p class="display-6 fw-bold mb-2">
-                Rp299.000 <span class="fs-6 fw-normal">/bulan</span>
+                Rp149.000 <span class="fs-6 fw-normal">/bulan</span>
               </p>
               <ul class="list-unstyled d-grid gap-2 mb-3">
-                <li>Diskon booking 15%</li>
-                <li>Prioritas slot malam</li>
-                <li>1 jam gratis tiap 10 jam main</li>
+                <li>Sewa lapangan flat Rp80.000/jam</li>
+                <li>Prioritas konfirmasi booking</li>
+                <li>Masa aktif 1 bulan penuh</li>
               </ul>
               <a href="{{ url('/reservasi') }}#membership-form" class="btn btn-accent w-100 rounded-pill">
                 Daftar Sekarang

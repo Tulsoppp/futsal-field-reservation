@@ -17,7 +17,10 @@
             Website User
           </a>
         @endif
-        <a href="{{ url('/login') }}" class="btn btn-dark rounded-pill px-3">Logout</a>
+        <a href="{{ route('logout') }}" class="btn btn-dark rounded-pill px-3" onclick="event.preventDefault(); document.getElementById('admin-logout-form').submit();">Logout</a>
+        <form id="admin-logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+          @csrf
+        </form>
       </div>
     </div>
     <nav class="admin-nav mt-3">
