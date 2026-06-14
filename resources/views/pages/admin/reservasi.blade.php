@@ -13,14 +13,14 @@
       <div class="row g-3 mb-4">
         <div class="col-6 col-lg-3">
           <article class="admin-stat-card">
-            <p>Menunggu Dikonfirmasi</p>
+            <p>Menunggu Konfirmasi</p>
             <h2 id="rvMenungguBayar">{{ $countMenungguBayar ?? 0 }}</h2>
           </article>
         </div>
         <div class="col-6 col-lg-3">
           <article class="admin-stat-card">
-            <p>Validasi / Menunggu Batal</p>
-            <h2 id="rvMenungguBatal">{{ $countMenungguBatal ?? 0 }}</h2>
+            <p>Menunggu Pembayaran</p>
+            <h2 id="rvMenungguPembayaran">{{ $countMenungguPembayaran ?? 0 }}</h2>
           </article>
         </div>
         <div class="col-6 col-lg-3">
@@ -40,6 +40,9 @@
       <!-- Jika ada pesan success / error -->
       @if (session('success'))
           <div class="alert alert-success mt-2">{{ session('success') }}</div>
+      @endif
+      @if (session('error'))
+          <div class="alert alert-danger mt-2">{{ session('error') }}</div>
       @endif
 
       <section class="panel-box mb-4">
@@ -90,6 +93,16 @@
                   <td>
                     @if($r->status === 'menunggu')
                       <span class="badge text-bg-warning">Menunggu Pembayaran</span>
+                      @php
+                        $batasWaktu = \Carbon\Carbon::parse($r->created_at)->addHour();
+                        $sisaWaktu = now()->diffInMinutes($batasWaktu, false);
+                      @endphp
+                      <br>
+                      @if($sisaWaktu > 0)
+                        <small class="text-secondary">Sisa {{ $sisaWaktu }} menit</small>
+                      @else
+                        <small class="text-danger fw-bold">Kadaluarsa</small>
+                      @endif
                     @elseif($r->status === 'pending')
                       <span class="badge text-bg-info">Menunggu Konfirmasi</span>
                     @elseif(in_array($r->status, ['disetujui', 'dibayar']))
@@ -111,6 +124,11 @@
                         <form action="{{ route('admin.reservasi.selesai', $r->id) }}" method="POST">
                           @csrf
                           <button class="btn btn-sm btn-primary" type="submit" onclick="return confirm('Tandai Selesai?')">Selesai Ber-main</button>
+                        </form>
+                      @elseif($r->status === 'menunggu')
+                        <form action="{{ route('admin.reservasi.tolak', $r->id) }}" method="POST">
+                          @csrf
+                          <button class="btn btn-sm btn-outline-danger" type="submit" onclick="return confirm('Batalkan reservasi ini?')">Batalkan</button>
                         </form>
                       @else
                         -

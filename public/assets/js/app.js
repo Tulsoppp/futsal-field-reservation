@@ -224,13 +224,8 @@ btnBayar?.addEventListener("click", () => {
         return;
     }
 
-    setSummary("Menunggu verifikasi admin");
-    setStatus(
-        "Pembayaran diterima. Menunggu konfirmasi admin.",
-        "text-bg-warning",
-    );
-    setMaxStep(4);
-    setStep(4);
+    // Transisi step 4 di-handle oleh fetch response di reservasi.blade.php
+    // agar tidak pindah step saat backend menolak (misalnya expired)
 });
 
 btnBatal?.addEventListener("click", () => {

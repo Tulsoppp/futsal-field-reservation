@@ -14,6 +14,16 @@ class DashboardController extends Controller
     {
         $today = Carbon::today();
 
+        // Auto-batalkan reservasi 'menunggu' yang sudah melewati batas waktu 1 jam (belum upload bukti)
+        $limitTime = Carbon::now()->subHour();
+        Reservasi::where('status', 'menunggu')
+            ->whereNull('bukti_pembayaran')
+            ->where('created_at', '<', $limitTime)
+            ->update([
+                'status' => 'dibatalkan',
+                'catatan' => 'Dibatalkan otomatis oleh sistem (melebihi batas waktu upload bukti pembayaran 1 jam)',
+            ]);
+
         $totalPendapatanBulanIni = Reservasi::whereIn('status', ['disetujui', 'selesai', 'dibayar'])
             ->whereMonth('tanggal', $today->month)
             ->whereYear('tanggal', $today->year)

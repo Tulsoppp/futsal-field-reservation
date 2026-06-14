@@ -52,8 +52,10 @@
                                                         <span class="badge bg-warning text-dark"><i class="bi bi-clock-history"></i> Menunggu Pembayaran</span>
                                                     @elseif ($r->status === 'pending')
                                                         <span class="badge bg-info text-dark"><i class="bi bi-clock-history"></i> Menunggu Konfirmasi</span>
-                                                    @elseif (in_array($r->status, ['disetujui', 'dibayar', 'selesai']))
+                                                    @elseif (in_array($r->status, ['disetujui', 'dibayar']))
                                                         <span class="badge bg-success"><i class="bi bi-check-circle"></i> Disetujui</span>
+                                                    @elseif ($r->status === 'selesai')
+                                                        <span class="badge bg-primary"><i class="bi bi-check-circle-fill"></i> Selesai</span>
                                                     @elseif ($r->status === 'dibatalkan')
                                                         <span class="badge bg-danger"><i class="bi bi-x-circle"></i> Dibatalkan</span>
                                                     @endif

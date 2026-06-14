@@ -15,13 +15,51 @@
                 timeOut: 3000
             };
 
-            @if (session())
+            @if (session('success'))
                 toastr.success(@json(session('success')));
             @endif
             
             @if(session('error'))
                 toastr.error(@json(session('error')));
             @endif
+
+            @if(!empty($expiredMessage))
+                toastr.error(@json($expiredMessage), 'Reservasi Kadaluarsa', { timeOut: 8000 });
+            @endif
+
+            // Fungsi untuk menangani reservasi yang sudah kadaluarsa (batas waktu habis)
+            // Membatalkan reservasi via API lalu reload halaman agar user kembali ke step 1
+            let isHandlingExpiry = false;
+            async function handleExpiredReservation(reservasiId) {
+                if (isHandlingExpiry) return; // Cegah pemanggilan berulang
+                isHandlingExpiry = true;
+
+                // Disable tombol agar user tidak bisa klik saat proses redirect
+                const btnBayar = document.getElementById('btnBayar');
+                const btnBack = document.getElementById('btnBackToStep2');
+                if (btnBayar) btnBayar.disabled = true;
+                if (btnBack) btnBack.disabled = true;
+
+                try {
+                    const csrfToken = document.querySelector('input[name="_token"]')?.value
+                        || document.querySelector('meta[name="csrf-token"]')?.content;
+
+                    await fetch(`{{ url('/reservasi') }}/${reservasiId}/batal`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json'
+                        }
+                    });
+                } catch (err) {
+                    console.error('Gagal membatalkan reservasi kadaluarsa:', err);
+                }
+
+                // Reload halaman setelah jeda singkat agar user bisa membaca pesan
+                setTimeout(() => {
+                    window.location.href = '{{ route("reservasi.index") }}';
+                }, 2000);
+            }
 
             // Logika menampilkan QRIS
             document.addEventListener("DOMContentLoaded", function() {
@@ -81,7 +119,8 @@
                                 const diff = expiryTime - now;
 
                                 if (diff <= 0) {
-                                    timerText.textContent = 'Waktu pembayaran sudah habis.';
+                                    timerText.textContent = 'Waktu pembayaran sudah habis. Membatalkan reservasi...';
+                                    handleExpiredReservation(unpaidId);
                                     return false;
                                 }
 
@@ -100,6 +139,15 @@
                                     clearInterval(timerId);
                                 }
                             }, 1000);
+                        }
+                    }
+
+                    // Juga cek langsung saat load: jika sudah expired, langsung handle
+                    const countdownBoxCheck = document.getElementById('paymentCountdown');
+                    if (countdownBoxCheck) {
+                        const expiryCheck = countdownBoxCheck.getAttribute('data-expiry');
+                        if (expiryCheck && new Date(expiryCheck).getTime() <= Date.now()) {
+                            handleExpiredReservation(unpaidId);
                         }
                     }
                 }
@@ -646,8 +694,6 @@
                     setMaxStep(3);
                     setStep(3);
 
-                    setStep(3);
-
                 } catch (err) {
                     console.error(err);
                 }
@@ -755,7 +801,12 @@
                             errContainer.textContent = data.errors.bukti_pembayaran[0];
                             document.getElementById('buktiReservasi').classList.add('is-invalid');
                         } else {
-                            alert(data.message || 'Gagal upload pembayaran.');
+                            // Tampilkan pesan error via toastr dan redirect ke halaman awal
+                            toastr.error(data.message || 'Gagal upload pembayaran.', 'Error', { timeOut: 5000 });
+                            // Redirect ke step 1 setelah jeda (kemungkinan reservasi expired/dibatalkan)
+                            setTimeout(() => {
+                                window.location.href = '{{ route("reservasi.index") }}';
+                            }, 2500);
                         }
                         return;
                     }
@@ -764,6 +815,15 @@
                     if (errContainer) errContainer.textContent = '';
                     document.getElementById('buktiReservasi').classList.remove('is-invalid');
                     toastr.success(data.message);
+
+                    // Pindah ke step 4 setelah upload berhasil dikonfirmasi backend
+                    setSummary("Menunggu verifikasi admin");
+                    setStatus(
+                        "Pembayaran diterima. Menunggu konfirmasi admin.",
+                        "text-bg-warning"
+                    );
+                    setMaxStep(4);
+                    setStep(4);
                 } catch (err) {
                     console.error(err);
                 }
