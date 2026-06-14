@@ -13,19 +13,30 @@ class ReservasiController extends Controller
     //
     public function tampilRiwayatBooking()
     {
-        $riwayat = Reservasi::where('id_user', Auth::id())
-            ->latest()
-            ->take(3)
-            ->get();
-
         $unpaidReservasi = Reservasi::where('id_user', Auth::id())
             ->where('status', 'menunggu')
             ->whereNull('bukti_pembayaran')
             ->first();
 
+        // Cek apakah reservasi yang belum dibayar sudah melewati batas waktu 1 jam
+        $expiredMessage = null;
+        if ($unpaidReservasi && Carbon::parse($unpaidReservasi->created_at)->addHour()->isPast()) {
+            $unpaidReservasi->update([
+                'status' => 'dibatalkan',
+                'catatan' => 'Dibatalkan otomatis: batas waktu upload bukti pembayaran (1 jam) telah habis.',
+            ]);
+            $expiredMessage = 'Reservasi sebelumnya telah dibatalkan otomatis karena batas waktu pembayaran (1 jam) telah habis. Silakan buat reservasi baru.';
+            $unpaidReservasi = null;
+        }
+
+        $riwayat = Reservasi::where('id_user', Auth::id())
+            ->latest()
+            ->take(3)
+            ->get();
+
         $lastReservasiId = session('last_reservasi_id');
 
-        return view('pages.user.reservasi', compact('riwayat', 'lastReservasiId', 'unpaidReservasi'));
+        return view('pages.user.reservasi', compact('riwayat', 'lastReservasiId', 'unpaidReservasi', 'expiredMessage'));
     }
 
     public function riwayatLengkap()
@@ -46,7 +57,18 @@ class ReservasiController extends Controller
             return redirect('/login')->with('error', 'Anda harus login terlebih dahulu untuk membuat pesanan.');
         }
 
-        // Cek apakah user memiliki tanggungan pembayaran
+        // Auto-cancel expired reservations sebelum cek tanggungan
+        $limitTime = Carbon::now()->subHour();
+        Reservasi::where('id_user', Auth::id())
+            ->where('status', 'menunggu')
+            ->whereNull('bukti_pembayaran')
+            ->where('created_at', '<', $limitTime)
+            ->update([
+                'status' => 'dibatalkan',
+                'catatan' => 'Dibatalkan otomatis: batas waktu upload bukti pembayaran (1 jam) telah habis.',
+            ]);
+
+        // Cek apakah user memiliki tanggungan pembayaran (yang masih valid / belum expired)
         $unpaidCount = Reservasi::where('id_user', Auth::id())
             ->where('status', 'menunggu')
             ->whereNull('bukti_pembayaran')
@@ -137,6 +159,20 @@ class ReservasiController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
+        // Cek status: hanya bisa upload bukti jika status masih 'menunggu'
+        if ($reservasi->status !== 'menunggu') {
+            return response()->json(['message' => 'Reservasi ini sudah tidak dalam status menunggu pembayaran.'], 400);
+        }
+
+        // Cek apakah sudah melewati batas waktu 1 jam
+        if (Carbon::parse($reservasi->created_at)->addHour()->isPast()) {
+            $reservasi->update([
+                'status' => 'dibatalkan',
+                'catatan' => 'Dibatalkan otomatis: batas waktu upload bukti pembayaran (1 jam) telah habis.',
+            ]);
+            return response()->json(['message' => 'Maaf, batas waktu pembayaran sudah habis. Reservasi dibatalkan otomatis.'], 400);
+        }
+
         $validatedData = $request->validate([
             'metode_pembayaran' => 'required|string',
             'bukti_pembayaran' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -161,6 +197,11 @@ class ReservasiController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
+        // Hanya bisa membatalkan jika status 'menunggu' atau sudah dibatalkan sistem
+        if (!in_array($reservasi->status, ['menunggu', 'dibatalkan'])) {
+            return response()->json(['message' => 'Reservasi ini tidak dapat dibatalkan dari status saat ini.'], 400);
+        }
+
         $reservasi->status = 'dibatalkan';
         $reservasi->save();
 
@@ -183,6 +224,17 @@ class ReservasiController extends Controller
     public function cekJadwalTersedia(Request $request)
     {
         $tanggal = $request->query('tanggal', now()->format('Y-m-d'));
+
+        // Auto-batalkan reservasi 'menunggu' yang sudah expired (>1 jam tanpa upload bukti)
+        // agar slot jadwal yang terblokir bisa dibebaskan
+        $limitTime = Carbon::now()->subHour();
+        Reservasi::where('status', 'menunggu')
+            ->whereNull('bukti_pembayaran')
+            ->where('created_at', '<', $limitTime)
+            ->update([
+                'status' => 'dibatalkan',
+                'catatan' => 'Dibatalkan otomatis oleh sistem (melebihi batas waktu upload bukti pembayaran 1 jam)',
+            ]);
 
         // Ambil data booking yang SUDAH ADA hari itu dan statusnya bukan dibatalkan
         $bookingHariIni = Reservasi::where('tanggal', $tanggal)
