@@ -131,7 +131,7 @@
             <article class="info-card h-100">
               <h3>Program Membership</h3>
               <p>
-                Dapatkan harga spesial, diskon rutin, dan prioritas booking pada jam-jam prime time dengan mendaftar sebagai member Jaya Futsal.
+                Dapatkan harga spesial, diskon rutinn, dan prioritas booking pada jam-jam prime time dengan mendaftar sebagai member Jaya Futsal.
               </p>
             </article>
           </div>
