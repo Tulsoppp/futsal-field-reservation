@@ -95,7 +95,7 @@
                       <span class="badge text-bg-warning">Menunggu Pembayaran</span>
                       @php
                         $batasWaktu = \Carbon\Carbon::parse($r->created_at)->addHour();
-                        $sisaWaktu = now()->diffInMinutes($batasWaktu, false);
+                        $sisaWaktu = (int) now()->diffInMinutes($batasWaktu, false);
                       @endphp
                       <br>
                       @if($sisaWaktu > 0)

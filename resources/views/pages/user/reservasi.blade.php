@@ -62,6 +62,42 @@
             }
 
             // Logika menampilkan QRIS
+            let countdownIntervalId = null;
+            window.startPaymentCountdown = function(expiryTimeMs, rId) {
+                const countdownBox = document.getElementById('paymentCountdown');
+                if (!countdownBox) return;
+                const timerText = countdownBox.querySelector('[data-countdown-text]');
+                countdownBox.classList.remove('d-none');
+                
+                if (countdownIntervalId) clearInterval(countdownIntervalId);
+
+                const updateCountdown = () => {
+                    const now = Date.now();
+                    const diff = expiryTimeMs - now;
+
+                    if (diff <= 0) {
+                        if (timerText) timerText.textContent = 'Waktu pembayaran habis. Membatalkan...';
+                        handleExpiredReservation(rId);
+                        return false;
+                    }
+
+                    const totalSeconds = Math.floor(diff / 1000);
+                    const hours = Math.floor(totalSeconds / 3600);
+                    const minutes = Math.floor((totalSeconds % 3600) / 60);
+                    const seconds = totalSeconds % 60;
+
+                    if (timerText) timerText.textContent = `Sisa waktu: ${hours}j ${minutes}m ${seconds}d`;
+                    return true;
+                };
+
+                updateCountdown();
+                countdownIntervalId = setInterval(() => {
+                    if (!updateCountdown()) {
+                        clearInterval(countdownIntervalId);
+                    }
+                }, 1000);
+            };
+
             document.addEventListener("DOMContentLoaded", function() {
                 const mtBayar = document.getElementById("metodeBayar");
                 const qrisBox = document.getElementById("qrisBox");
@@ -109,44 +145,9 @@
                     const countdownBox = document.getElementById('paymentCountdown');
                     if (countdownBox) {
                         const expiry = countdownBox.getAttribute('data-expiry');
-                        const timerText = countdownBox.querySelector('[data-countdown-text]');
-
-                        if (expiry && timerText) {
-                            const expiryTime = new Date(expiry).getTime();
-
-                            const updateCountdown = () => {
-                                const now = Date.now();
-                                const diff = expiryTime - now;
-
-                                if (diff <= 0) {
-                                    timerText.textContent = 'Waktu pembayaran sudah habis. Membatalkan reservasi...';
-                                    handleExpiredReservation(unpaidId);
-                                    return false;
-                                }
-
-                                const totalSeconds = Math.floor(diff / 1000);
-                                const hours = Math.floor(totalSeconds / 3600);
-                                const minutes = Math.floor((totalSeconds % 3600) / 60);
-                                const seconds = totalSeconds % 60;
-
-                                timerText.textContent = `Sisa waktu: ${hours}j ${minutes}m ${seconds}d`;
-                                return true;
-                            };
-
-                            updateCountdown();
-                            const timerId = setInterval(() => {
-                                if (!updateCountdown()) {
-                                    clearInterval(timerId);
-                                }
-                            }, 1000);
-                        }
-                    }
-
-                    // Juga cek langsung saat load: jika sudah expired, langsung handle
-                    const countdownBoxCheck = document.getElementById('paymentCountdown');
-                    if (countdownBoxCheck) {
-                        const expiryCheck = countdownBoxCheck.getAttribute('data-expiry');
-                        if (expiryCheck && new Date(expiryCheck).getTime() <= Date.now()) {
+                        if (expiry && new Date(expiry).getTime() > Date.now()) {
+                            window.startPaymentCountdown(new Date(expiry).getTime(), unpaidId);
+                        } else if (expiry && new Date(expiry).getTime() <= Date.now()) {
                             handleExpiredReservation(unpaidId);
                         }
                     }
@@ -390,15 +391,13 @@
                                         Total Pembayaran
                                         <strong>Rp120.000</strong>
                                     </div>
-                                    @if($unpaidReservasi && $unpaidReservasi->status === 'menunggu' && empty($unpaidReservasi->bukti_pembayaran))
-                                        <div
-                                            class="alert alert-danger py-2 small"
-                                            id="paymentCountdown"
-                                            data-expiry="{{ \Carbon\Carbon::parse($unpaidReservasi->created_at)->addHour()->toIso8601String() }}">
-                                            <div class="fw-semibold">Batas Upload Bukti Pembayaran</div>
-                                            <div data-countdown-text>Sisa waktu: -</div>
-                                        </div>
-                                    @endif
+                                    <div
+                                        class="alert alert-danger py-2 small d-none"
+                                        id="paymentCountdown"
+                                        data-expiry="{{ $unpaidReservasi ? \Carbon\Carbon::parse($unpaidReservasi->created_at)->addHour()->toIso8601String() : '' }}">
+                                        <div class="fw-semibold">Batas Upload Bukti Pembayaran</div>
+                                        <div data-countdown-text>Sisa waktu: -</div>
+                                    </div>
                                     <div class="mb-3">
                                         <label class="form-label" for="metodeBayar">Metode Pembayaran</label>
                                         <select class="form-select" id="metodeBayar" name="metode_pembayaran">
@@ -690,6 +689,9 @@
                     reservasiIdInput.value = data.reservasi.id;
                     toastr.success(data.message);
                     
+                    // Start countdown for newly created reservation (1 hour from now)
+                    window.startPaymentCountdown(Date.now() + 3600000, data.reservasi.id);
+
                     setSummary("Pesanan terkonfirmasi");
                     setMaxStep(3);
                     setStep(3);

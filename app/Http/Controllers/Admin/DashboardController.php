@@ -29,9 +29,7 @@ class DashboardController extends Controller
             ->whereYear('tanggal', $today->year)
             ->sum('total_harga');
 
-        $totalReservasiHariIni = Reservasi::whereDate('tanggal', $today)
-            ->where('status', '!=', 'dibatalkan')
-            ->count();
+        $totalReservasiHariIni = Reservasi::whereDate('tanggal', $today)->count();
 
         $menungguPembayaran = Reservasi::where('status', 'menunggu')->count();
 
