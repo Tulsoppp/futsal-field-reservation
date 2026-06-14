@@ -34,7 +34,9 @@
           <button class="btn btn-outline-danger btn-sm rounded-pill ms-2" type="button" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</button>
         </li>
       </ul>
-      <form id="logout-form" action="{{ route('login') }}" method="GET" class="d-none"></form>
+      <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+        @csrf
+      </form>
     </div>
   </div>
 </nav>

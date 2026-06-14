@@ -20,6 +20,7 @@ Route::post('/proses-login', [AuthController::class, 'prosesLogin'])->name('pros
 
 // Auth Routes (Hanya untuk pengguna yang SUDAH login)
 Route::middleware('auth')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     // --- GROUP RESERVASI USER ---
     Route::prefix('reservasi')->name('reservasi.')->controller(ReservasiController::class)->group(function () {
