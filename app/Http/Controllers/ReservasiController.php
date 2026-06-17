@@ -130,11 +130,11 @@ class ReservasiController extends Controller
         // === CEK MEMBERSHIP: FREE 1 JAM (VOUCHER SEKALI PAKAI) ===
         $user = Auth::user();
         $freeHourApplied = false;
-        if ($user && $user->membership_status === 'active' && $user->status_member == 1) {
+        if ($user && $user->membership_status === 'active' && $user->status_member == '1') {
             // Auto-deactivate jika 3 bulan tidak booking
             if ($user->membership_last_booking_at && Carbon::parse($user->membership_last_booking_at)->addMonths(3)->isPast()) {
                 $user->membership_status = 'expired';
-                $user->status_member = 0;
+                $user->status_member = '0';
                 $user->save();
             } else {
                 // Terapkan free 1 jam jika belum dipakai
@@ -163,7 +163,7 @@ class ReservasiController extends Controller
         ]);
 
         // Update membership tracking
-        if ($user && $user->membership_status === 'active' && $user->status_member == 1) {
+        if ($user && $user->membership_status === 'active' && $user->status_member == '1') {
             $user->membership_last_booking_at = now();
             if ($freeHourApplied) {
                 $user->membership_free_hour_used = true;
