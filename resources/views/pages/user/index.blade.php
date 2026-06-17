@@ -154,24 +154,27 @@
           <table class="table table-pricing align-middle">
             <thead>
               <tr>
-                <th>Kategori Pengguna</th>
+                <th>Waktu</th>
+                <th>Jam Operasional</th>
                 <th>Harga Sewa per Jam</th>
-                <th>Benefit Tambahan</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td><strong>Umum (Non-Member)</strong></td>
-                <td>Rp100.000 / jam</td>
-                <td>-</td>
+                <td><strong><i class="bi bi-sun"></i> Pagi / Siang</strong></td>
+                <td>07:00 - 17:00</td>
+                <td><strong>Rp60.000</strong> / jam</td>
               </tr>
               <tr>
-                <td><strong>Member Aktif</strong></td>
-                <td>Rp80.000 / jam</td>
-                <td>Harga lebih hemat (Diskon 20%)</td>
+                <td><strong><i class="bi bi-moon-stars"></i> Malam</strong></td>
+                <td>17:00 - 23:00</td>
+                <td><strong>Rp70.000</strong> / jam</td>
               </tr>
             </tbody>
           </table>
+          <div class="alert alert-info border-0 py-2 small">
+            <i class="bi bi-info-circle"></i> <strong>Member Aktif</strong> mendapatkan <strong>FREE 1 jam bermain</strong> (voucher sekali pakai) selama masa membership.
+          </div>
         </div>
       </div>
     </section>
@@ -181,22 +184,23 @@
         <div class="row g-4 align-items-center">
           <div class="col-lg-7">
             <p class="section-kicker mb-2">Daftar Membership</p>
-            <h2 class="section-title">Paket Member Jaya Futsal</h2>
+            <h2 class="section-title">Member Jaya Futsal</h2>
             <p class="text-dark-70">
-              Member mendapatkan harga khusus sewa lapangan (diskon 20% menjadi Rp80.000/jam),
-              dan akses berbagai keuntungan eksklusif lainnya.
+              Daftar sebagai member Jaya Futsal dengan biaya Rp150.000 dan dapatkan keuntungan eksklusif
+              berupa <strong>free 1 jam bermain</strong> (voucher sekali pakai) selama masa membership 3 bulan.
+              Jika dalam 3 bulan tidak pernah melakukan booking, membership akan otomatis hangus.
             </p>
           </div>
           <div class="col-lg-5">
             <div class="membership-card">
-              <h3 class="h5">Member Basic</h3>
+              <h3 class="h5">Member Jaya Futsal</h3>
               <p class="display-6 fw-bold mb-2">
-                Rp149.000 <span class="fs-6 fw-normal">/bulan</span>
+                Rp150.000 <span class="fs-6 fw-normal">/ 3 bulan</span>
               </p>
               <ul class="list-unstyled d-grid gap-2 mb-3">
-                <li>Sewa lapangan flat Rp80.000/jam</li>
-                <li>Prioritas konfirmasi booking</li>
-                <li>Masa aktif 1 bulan penuh</li>
+                <li><i class="bi bi-check-circle-fill text-success"></i> Free 1 jam bermain (sekali pakai)</li>
+                <li><i class="bi bi-check-circle-fill text-success"></i> Prioritas konfirmasi booking</li>
+                <li><i class="bi bi-check-circle-fill text-success"></i> Masa aktif 3 bulan</li>
               </ul>
               <a href="{{ url('/reservasi') }}#membership-form" class="btn btn-accent w-100 rounded-pill">
                 Daftar Sekarang

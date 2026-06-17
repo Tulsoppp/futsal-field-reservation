@@ -42,17 +42,25 @@
                                 @if($sisaHari < 0)
                                     <div class="alert alert-danger">
                                         <h5 class="alert-heading">Membership Kedaluwarsa!</h5>
-                                        <p class="mb-0">Paket <b>{{ $user->membership_type }}</b> kamu sudah habis masa aktifnya sejak {{ $expires->format('d M Y') }}.</p>
+                                        <p class="mb-0">Membership <b>Member Jaya Futsal</b> kamu sudah habis masa aktifnya sejak {{ $expires->format('d M Y') }}.</p>
                                     </div>
                                 @else
                                     <div class="alert alert-success">
                                         <h5 class="alert-heading d-flex align-items-center gap-2">
                                             <i class="bi bi-patch-check-fill text-success fs-4"></i>
-                                            Member Aktif: {{ $user->membership_type }}
+                                            Member Aktif: Member Jaya Futsal
                                         </h5>
                                         <p class="mb-0 mt-2">Masa aktif membership kamu sampai dengan <b>{{ $expires->format('d M Y') }}</b>.</p>
                                         <hr>
                                         <p class="mb-0"><b>Sisa Waktu:</b> {{ intval($sisaHari) }} hari lagi.</p>
+                                        <p class="mb-0 mt-1">
+                                            <b>Voucher Free 1 Jam:</b>
+                                            @if(!$user->membership_free_hour_used)
+                                                <span class="badge bg-success">Tersedia</span> — Akan otomatis diterapkan saat booking berikutnya.
+                                            @else
+                                                <span class="badge bg-secondary">Sudah Digunakan</span>
+                                            @endif
+                                        </p>
                                     </div>
                                 @endif
                             @endif

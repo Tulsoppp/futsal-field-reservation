@@ -24,6 +24,16 @@ class DashboardController extends Controller
                 'catatan' => 'Dibatalkan otomatis oleh sistem (melebihi batas waktu upload bukti pembayaran 1 jam)',
             ]);
 
+        // Auto-deactivate membership yang 3 bulan tidak booking
+        User::where('membership_status', 'active')
+            ->where('status_member', 1)
+            ->whereNotNull('membership_last_booking_at')
+            ->where('membership_last_booking_at', '<', Carbon::now()->subMonths(3))
+            ->update([
+                'membership_status' => 'expired',
+                'status_member' => 0,
+            ]);
+
         $totalPendapatanBulanIni = Reservasi::whereIn('status', ['disetujui', 'selesai', 'dibayar'])
             ->whereMonth('tanggal', $today->month)
             ->whereYear('tanggal', $today->year)

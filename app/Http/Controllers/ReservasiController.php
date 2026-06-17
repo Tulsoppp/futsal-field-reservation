@@ -116,17 +116,41 @@ class ReservasiController extends Controller
             return redirect()->back()->with('error', 'Maaf, lapangan sudah dibooking pada jam tersebut. Silakan pilih waktu lain.');
         }
 
-        // Harga Sewa Tetap per jam
-        $hargaPerJam = env('HARGA_SEWA_PER_JAM', 100000);
+        // === HARGA BERDASARKAN WAKTU ===
+        // Pagi (07:00 - 16:59): Rp60.000/jam
+        // Malam (17:00 - 22:59): Rp70.000/jam
+        $jamMulaiInt = (int) $jamMulai->format('H');
+        $jamSelesaiInt = (int) $jamSelesai->format('H');
 
-        $user = Auth::user();
-        if ($user && $user->membership_status === 'active' && $user->status_member == 1) {
-            // Jika user adalah member aktif, berikan harga spesial / potongan!
-            $hargaPerJam = 80000;
+        $totalHarga = 0;
+        for ($jam = $jamMulaiInt; $jam < $jamSelesaiInt; $jam++) {
+            $totalHarga += ($jam < 17) ? 60000 : 70000;
         }
 
-        $durasiJam = $jamMulai->diffInHours($jamSelesai);
-        $totalHarga = $durasiJam * $hargaPerJam;
+        // === CEK MEMBERSHIP: FREE 1 JAM (VOUCHER SEKALI PAKAI) ===
+        $user = Auth::user();
+        $freeHourApplied = false;
+        if ($user && $user->membership_status === 'active' && $user->status_member == 1) {
+            // Auto-deactivate jika 3 bulan tidak booking
+            if ($user->membership_last_booking_at && Carbon::parse($user->membership_last_booking_at)->addMonths(3)->isPast()) {
+                $user->membership_status = 'expired';
+                $user->status_member = 0;
+                $user->save();
+            } else {
+                // Terapkan free 1 jam jika belum dipakai
+                if (!$user->membership_free_hour_used) {
+                    // Kurangi 1 jam termahal dari total
+                    $jamTerMahal = 0;
+                    for ($jam = $jamMulaiInt; $jam < $jamSelesaiInt; $jam++) {
+                        $hargaJam = ($jam < 17) ? 60000 : 70000;
+                        if ($hargaJam > $jamTerMahal) $jamTerMahal = $hargaJam;
+                    }
+                    $totalHarga -= $jamTerMahal;
+                    if ($totalHarga < 0) $totalHarga = 0;
+                    $freeHourApplied = true;
+                }
+            }
+        }
 
         $reservasi = Reservasi::create([
             'id_user' => Auth::id(),
@@ -137,6 +161,15 @@ class ReservasiController extends Controller
             'status' => 'menunggu',
             'catatan' => $validatedData['catatan'],
         ]);
+
+        // Update membership tracking
+        if ($user && $user->membership_status === 'active' && $user->status_member == 1) {
+            $user->membership_last_booking_at = now();
+            if ($freeHourApplied) {
+                $user->membership_free_hour_used = true;
+            }
+            $user->save();
+        }
 
         if ($request->wantsJson()) {
             return response()->json([
@@ -242,29 +275,40 @@ class ReservasiController extends Controller
             ->get();
 
         $jamOperasional = [];
-        $start = 8; // Buka jam 08:00
+        $start = 7; // Buka jam 07:00
         $end = 23; // Tutup jam 23:00
+
+        $today = now()->format('Y-m-d');
+        $currentHour = (int) now()->format('H');
 
         for ($i = $start; $i <= $end; $i++) {
             $jamFormat = sprintf('%02d:00', $i);
             $status = 'Tersedia';
             $keterangan = '';
+            $harga = ($i < 17) ? 60000 : 70000;
 
-            // Cek apakah jam ini masuk di range data booking yang sudah ada
-            foreach ($bookingHariIni as $booking) {
-                $jamMulaiBooking = (int) substr($booking->jam_mulai, 0, 2);
-                $jamSelesaiBooking = (int) substr($booking->jam_selesai, 0, 2);
+            // Cek apakah hari ini dan jam sudah terlewat
+            if ($tanggal === $today && $i <= $currentHour) {
+                $status = 'Waktu Berlalu';
+                $keterangan = 'Jam ini sudah terlewat';
+            } else {
+                // Cek apakah jam ini masuk di range data booking yang sudah ada
+                foreach ($bookingHariIni as $booking) {
+                    $jamMulaiBooking = (int) substr($booking->jam_mulai, 0, 2);
+                    $jamSelesaiBooking = (int) substr($booking->jam_selesai, 0, 2);
 
-                if ($i >= $jamMulaiBooking && $i < $jamSelesaiBooking) {
-                    $status = 'Sudah Dibooking';
-                    $keterangan = "Sudah ada yang booking dari jam " . substr($booking->jam_mulai, 0, 5) . " sampai " . substr($booking->jam_selesai, 0, 5);
+                    if ($i >= $jamMulaiBooking && $i < $jamSelesaiBooking) {
+                        $status = 'Sudah Dibooking';
+                        $keterangan = "Sudah ada yang booking dari jam " . substr($booking->jam_mulai, 0, 5) . " sampai " . substr($booking->jam_selesai, 0, 5);
+                    }
                 }
             }
 
             $jamOperasional[] = [
                 'jam' => $jamFormat,
                 'status' => $status,
-                'keterangan' => $keterangan
+                'keterangan' => $keterangan,
+                'harga' => $harga
             ];
         }
 

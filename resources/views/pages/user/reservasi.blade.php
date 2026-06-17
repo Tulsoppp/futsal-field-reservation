@@ -217,10 +217,20 @@
                     <p class="text-dark-70 mb-3 booking-caption">
                         Ikuti urutan ini: isi jadwal, cek ringkasan otomatis, lalu konfirmasi dan lakukan
                         pembayaran.
+                        <br>
+                        <span class="text-secondary">
+                            <i class="bi bi-clock"></i> Jam Operasional: <strong>07:00 - 23:00</strong> |
+                            <i class="bi bi-sun"></i> Pagi (07:00-17:00): <strong>Rp60.000/jam</strong> |
+                            <i class="bi bi-moon-stars"></i> Malam (17:00-23:00): <strong>Rp70.000/jam</strong>
+                        </span>
                         @if(Auth::user() && Auth::user()->membership_status === 'active' && Auth::user()->status_member == 1)
-                            <br><span class="text-success fw-bold"><i class="bi bi-tags-fill"></i> Harga Spesial Member: Rp80.000 / Jam otomatis diterapkan!</span>
-                        @else
-                            <br><span class="text-secondary"><i class="bi bi-info-circle"></i> Harga Normal: Rp100.000 / Jam. (Daftar member untuk dapatkan harga spesial)</span>
+                            <br><span class="text-success fw-bold"><i class="bi bi-tags-fill"></i> Member Aktif!
+                                @if(!Auth::user()->membership_free_hour_used)
+                                    Anda memiliki <u>FREE 1 JAM</u> (voucher sekali pakai) yang akan otomatis diterapkan.
+                                @else
+                                    Voucher free 1 jam sudah digunakan.
+                                @endif
+                            </span>
                         @endif
                     </p>
                     <div class="steps-wrap mb-4" id="bookingSteps">
@@ -531,11 +541,9 @@
                             <form class="booking-input-group row g-3" id="formDaftarMembership" onsubmit="event.preventDefault(); submitMembership();">
                                 @csrf
                                 <div class="col-md-6">
-                                    <label class="form-label" for="paketMember">Pilih Paket</label>
+                                    <label class="form-label" for="paketMember">Paket Membership</label>
                                     <select class="form-select" id="paketMember" name="membership_type" required>
-                                        <option value="149000">Basic (1 Bulan) - Rp149.000</option>
-                                        <option value="299000">Pro Team (2 Bulan) - Rp299.000</option>
-                                        <option value="449000">Elite League (6 Bulan) - Rp449.000</option>
+                                        <option value="150000">Member Jaya Futsal - Rp150.000</option>
                                     </select>
                                 </div>
                                 <div class="col-md-6">
@@ -543,6 +551,17 @@
                                     <select class="form-select" id="metodeBayarMember" disabled>
                                         <option value="QRIS" selected>QRIS Resmi</option>
                                     </select>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="alert alert-success mb-0">
+                                        <strong>Keuntungan Member:</strong>
+                                        <ul class="mb-0 mt-1">
+                                            <li>Free 1 jam bermain (voucher sekali pakai selama masa membership)</li>
+                                            <li>Masa aktif 3 bulan</li>
+                                            <li>Prioritas konfirmasi booking</li>
+                                        </ul>
+                                    </div>
                                 </div>
 
                                 <div class="col-12 mt-3 text-center p-3 border rounded shadow-sm">
@@ -562,12 +581,13 @@
                             <div class="order-summary membership-summary">
                                 <h3 class="h5 mb-3">Ringkasan Membership</h3>
                                 <ul class="list-unstyled mb-3 small">
-                                    <li>Paket Terpilih: <span id="lblPaketMember">-</span></li>
-                                    <li>Masa Aktif: <span id="lblMasaAktif">-</span></li>
+                                    <li>Paket: <b>Member Jaya Futsal</b></li>
+                                    <li>Masa Aktif: <b>3 Bulan</b></li>
+                                    <li>Benefit: <b>Free 1 Jam (sekali pakai)</b></li>
                                 </ul>
                                 <div class="estimated-total mb-3">
                                     Total Harga
-                                    <strong id="estimasiMemberText">Rp149.000</strong>
+                                    <strong id="estimasiMemberText">Rp150.000</strong>
                                 </div>
                                 <button class="btn btn-accent w-100" id="btnDaftarMembership" type="button" onclick="submitMembership()">
                                     Kirim Data Membership
@@ -609,8 +629,8 @@
 
 @push('scripts')
     <script>
-        // Set harga dinamis menggunakan Blade: Jika member aktif dapat harga 80RB, jika bukan 100RB
-        window.HARGA_SEWA = {{ (Auth::user() && Auth::user()->membership_status === 'active' && Auth::user()->status_member == 1) ? 80000 : 100000 }};
+        // Set flag member free hour (untuk kalkulasi harga di frontend)
+        window.MEMBER_FREE_HOUR = {{ (Auth::user() && Auth::user()->membership_status === 'active' && Auth::user()->status_member == 1 && !Auth::user()->membership_free_hour_used) ? 'true' : 'false' }};
     </script>
     <script src="{{ asset('assets/js/app.js') }}"></script>
     <script>
@@ -701,26 +721,8 @@
                 }
             }
 
-            // Update perhitungan Member UI
-            const selectPaketMember = document.getElementById('paketMember');
-            const lblPaketMember = document.getElementById('lblPaketMember');
-            const lblMasaAktif = document.getElementById('lblMasaAktif');
-            const estimasiMemberText = document.getElementById('estimasiMemberText');
-
-            function updateMemberUI() {
-                if(!selectPaketMember) return;
-                const val = selectPaketMember.value;
-                let nama = 'Basic';
-                let aktif = '1 Bulan';
-                if(val == '299000') { nama = 'Pro Team'; aktif = '2 Bulan'; }
-                if(val == '449000') { nama = 'Elite League'; aktif = '6 Bulan'; }
-                
-                if(lblPaketMember) lblPaketMember.innerHTML = `<b>${nama}</b>`;
-                if(lblMasaAktif) lblMasaAktif.innerHTML = `<b>${aktif}</b>`;
-                if(estimasiMemberText) estimasiMemberText.textContent = "Rp" + new Intl.NumberFormat("id-ID").format(val);
-            }
-            selectPaketMember?.addEventListener('change', updateMemberUI);
-            updateMemberUI();
+            // Membership UI: hanya 1 paket, tidak perlu update dinamis
+            // (Summary sudah static di HTML)
 
             // Submit Membership
             window.submitMembership = async function() {
@@ -916,9 +918,10 @@
                         jadwalOperasional.forEach(j => {
                             const opt = document.createElement('option');
                             opt.value = j.jam; 
+                            const hargaLabel = j.harga ? ` - Rp${new Intl.NumberFormat('id-ID').format(j.harga)}` : '';
 
                             if (j.status === 'Tersedia') {
-                                opt.textContent = `${j.jam} (Tersedia)`;
+                                opt.textContent = `${j.jam} (Tersedia${hargaLabel})`;
                                 adaTersedia = true;
                             } else {
                                 opt.textContent = `${j.jam} - ${j.keterangan}`;
