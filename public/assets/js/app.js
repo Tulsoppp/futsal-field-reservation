@@ -23,24 +23,39 @@ const catatanPreview = document.getElementById("catatanPreview");
 const bookingStatusText = document.getElementById("bookingStatusText");
 const bookingStatusBadge = document.getElementById("bookingStatusBadge");
 
-// Harga ambil dari variabel global (yang akan diset oleh backend dari blade),
-// kalau belum didefinisikan pakai default 100000
-const hargaFlat =
-    typeof window.HARGA_SEWA !== "undefined" ? window.HARGA_SEWA : 100000;
+// Harga berdasarkan waktu:
+// Pagi (07:00-16:59) = 60.000, Malam (17:00-22:59) = 70.000
+const HARGA_PAGI = 60000;
+const HARGA_MALAM = 70000;
 
 function hitungEstimasi() {
     const jamMain = document.getElementById("jamMain")?.value;
     const jamSelesaiMain = document.getElementById("jamSelesaiMain")?.value;
-    let durasi = 1;
 
-    if (jamMain && jamSelesaiMain) {
-        const hMulai = parseInt(jamMain.split(":")[0]);
-        const hSelesai = parseInt(jamSelesaiMain.split(":")[0]);
-        durasi = hSelesai - hMulai;
-        if (durasi < 1) durasi = 1;
+    if (!jamMain || !jamSelesaiMain) return 0;
+
+    const hMulai = parseInt(jamMain.split(":")[0]);
+    const hSelesai = parseInt(jamSelesaiMain.split(":")[0]);
+
+    if (hSelesai <= hMulai) return 0;
+
+    let total = 0;
+    for (let jam = hMulai; jam < hSelesai; jam++) {
+        total += (jam < 17) ? HARGA_PAGI : HARGA_MALAM;
     }
 
-    return durasi * hargaFlat;
+    // Jika member aktif dan free hour belum dipakai, kurangi 1 jam termahal
+    if (typeof window.MEMBER_FREE_HOUR === 'boolean' && window.MEMBER_FREE_HOUR) {
+        let maxHarga = 0;
+        for (let jam = hMulai; jam < hSelesai; jam++) {
+            const h = (jam < 17) ? HARGA_PAGI : HARGA_MALAM;
+            if (h > maxHarga) maxHarga = h;
+        }
+        total -= maxHarga;
+        if (total < 0) total = 0;
+    }
+
+    return total;
 }
 
 function formatRupiah(nominal) {
@@ -168,7 +183,7 @@ function setStatus(text, badgeClass) {
     }
 }
 
-["tanggalMain", "jamMain", "durasiMain"].forEach((id) => {
+["tanggalMain", "jamMain", "jamSelesaiMain", "durasiMain"].forEach((id) => {
     const element = document.getElementById(id);
     element?.addEventListener("change", () => {
         setSummary("Menunggu konfirmasi");
@@ -183,13 +198,7 @@ setSummary("Menunggu konfirmasi");
 updateCatatanPreview();
 setStep(1);
 
-paketMember?.addEventListener("change", () => {
-    if (estimasiMember) {
-        estimasiMember.textContent = formatRupiah(
-            Number(paketMember.value || 0),
-        );
-    }
-});
+// Membership: hanya 1 paket, tidak perlu event listener paketMember
 
 buktiReservasi?.addEventListener("change", () => {
     tampilkanNamaFile(buktiReservasi, buktiReservasiInfo);
@@ -201,9 +210,8 @@ buktiMembership?.addEventListener("change", () => {
     tampilkanNamaFile(buktiMembership, buktiMembershipInfo);
 });
 
-if (estimasiMember && paketMember) {
-    estimasiMember.textContent = formatRupiah(Number(paketMember.value || 0));
-}
+
+
 
 // Di-comment atau dimatikan, karena kontrol ganti step sekarang ditangani dari respons backend (di reservasi.blade.php)
 // btnKonfirmasi?.addEventListener("click", () => {

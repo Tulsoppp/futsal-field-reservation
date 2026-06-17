@@ -30,6 +30,8 @@ class User extends Authenticatable
         'membership_status',
         'membership_proof',
         'membership_expires_at',
+        'membership_free_hour_used',
+        'membership_last_booking_at',
     ];
 
     public function reservasis()

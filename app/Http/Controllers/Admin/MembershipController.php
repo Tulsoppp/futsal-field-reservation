@@ -23,14 +23,13 @@ class MembershipController extends Controller
         $user->membership_status = 'active';
         $user->status_member = 1;
 
-        $duration = 1;
-        if ($user->membership_type == 'Pro Team') $duration = 2;
-        if ($user->membership_type == 'Elite League') $duration = 6;
-
-        $user->membership_expires_at = Carbon::now()->addMonths($duration);
+        // Membership selalu 3 bulan
+        $user->membership_expires_at = Carbon::now()->addMonths(3);
+        $user->membership_free_hour_used = false; // Reset benefit free 1 jam
+        $user->membership_last_booking_at = now(); // Set agar countdown 3 bulan dimulai dari sekarang
         $user->save();
 
-        return redirect()->back()->with('success', 'Membership disetujui.');
+        return redirect()->back()->with('success', 'Membership disetujui (3 bulan aktif, free 1 jam).');
     }
 
     public function tolak(Request $request, $id)

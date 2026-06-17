@@ -32,9 +32,7 @@
           <div class="col-md-6">
             <label class="form-label" for="membershipPaket">Paket</label>
             <select class="form-select" id="membershipPaket">
-              <option>Basic</option>
-              <option>Pro Team</option>
-              <option>Elite League</option>
+              <option>Member Jaya Futsal</option>
             </select>
           </div>
           <div class="col-md-6">
